@@ -5,6 +5,8 @@ OUTPUT_DIRECTORY := _build
 SDK_ROOT := C:/nRF5_SDK
 PROJ_DIR := .
 
+JLINK = 851002453 #- Base
+
 $(OUTPUT_DIRECTORY)/nrf52810_xxaa_s112.out: \
   LINKER_SCRIPT  := secure_bootloader_gcc_nrf52.ld
 
@@ -263,19 +265,19 @@ $(foreach target, $(TARGETS), $(call define_target, $(target)))
 # Flash the program
 flash: default
 	@echo Flashing: $(OUTPUT_DIRECTORY)/nrf52810_xxaa_s112.hex
-	nrfjprog -f nrf52 -s 801001366 --program $(OUTPUT_DIRECTORY)/nrf52810_xxaa_s112.hex --sectorerase
-	nrfjprog -f nrf52 -s 801001366 --reset
+	nrfjprog -f nrf52 -s $(JLINK) --program $(OUTPUT_DIRECTORY)/nrf52810_xxaa_s112.hex --sectorerase
+	nrfjprog -f nrf52 -s $(JLINK) --reset
 
 # Flash softdevice
 flash_softdevice:
 	@echo Flashing: s112_nrf52_7.2.0_softdevice.hex
-	nrfjprog -f nrf52 -s 801001366 --program $(SDK_ROOT)/components/softdevice/s112/hex/s112_nrf52_7.2.0_softdevice.hex --sectorerase
-	nrfjprog -f nrf52 -s 801001366 --reset
+	nrfjprog -f nrf52 -s $(JLINK) --program $(SDK_ROOT)/components/softdevice/s112/hex/s112_nrf52_7.2.0_softdevice.hex --sectorerase
+	nrfjprog -f nrf52 -s $(JLINK) --reset
 
 erase:
-	nrfjprog -f nrf52 -s 801001366 --eraseall
+	nrfjprog -f nrf52 -s $(JLINK) --eraseall
 
 reflash:  erase  flash  flash_softdevice
 
 reset:
-	nrfjprog -f nrf52 -s 801001366 --reset
+	nrfjprog -f nrf52 -s $(JLINK) --reset
