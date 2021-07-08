@@ -7,9 +7,9 @@ It configures memory system and a few pins of the [microcontroller](https://en.w
 
 Then, it checks for a few seconds if any firmware update request is being made via Bluetooth. If so it proceeds with the update request, and if not it moves on and launch the main program (the die's [firmware](https://github.com/GameWithPixels/DiceFirmware)).
 
-This program is based on Nordic Semiconductor nRF5 SDK Bootloader example. For more information about this example and others see [here](https://infocenter.nordicsemi.com/topic/sdk_nrf5_v17.0.2/lib_bootloader_modules.html).
+This program is based on Nordic Semiconductor nRF5 SDK Bootloader example. For more information about this example and others see [here](https://infocenter.nordicsemi.com/topic/sdk_nrf5_v17.0.2/libbootloadermodules.html).
 
-Nordic's SDK, Make and GCC are required to build the _bootloader_.
+Nordic's SDK, Make and GCC are required to build the bootloader.
 
 ## Building The Bootloader
 
@@ -62,11 +62,12 @@ _Note: Nordic's documentation [page](https://infocenter.nordicsemi.com/topic/com
 
 ### Building
 
-Make sure that the `SDK_ROOT` is pointing to the correct folder in the project's _Makefile_.
+Make sure that the _Makefile_ `SDK_ROOT` variable is pointing to the correct folder.
 
 Open a command line and go the folder where this repository is cloned and run `make`.
 
-The output files are placed in the `_builds` folder, you'll find `.hex` file and its companion files.
+The output files are placed in the `_builds` folder, by default those are release files (not debug).
+The one that we want to program to the flash memory is the `.hex` file (more about this format [here](https://en.wikipedia.org/wiki/Intel_HEX)) .
 
 ## Programming a die (with USB)
 
@@ -91,10 +92,10 @@ We like to use the _Programmer_ tool to inspect and sometimes reprogram the flas
 Using the provided _Makefile_ you may:
 
 * `reset`: restart the device
-* `flash`: program the _bootloader_ into the die's memory and reboot the device
-* `flash_softdevice`: program the _SoftDevice_ into the die's memory and reboot the device
 * `erase`: entirely erase the flash memory
-* `reflash`: calls `erase`, `flash` and `flash_softdevice` in a sequence
+* `flash`: program the bootloader into the die's memory and reboot the device
+* `flash_softdevice`: program the _SoftDevice_ into the die's memory and reboot the device
+* `reflash`: call `erase`, `flash` and `flash_softdevice` in a sequence
 
 The latter is the most useful command.
 
