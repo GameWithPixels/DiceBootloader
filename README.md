@@ -1,3 +1,104 @@
 # DiceBootloader
 
-A C program that starts the main application uploaded in Pixels memory and allows updating that application over Bluetooth.
+## Overview
+
+When flashed on the die's memory, this program is the [first](https://en.wikipedia.org/wiki/Bootloader) piece of software to run.
+It configures memory system and a few pins of the [microcontroller](https://en.wikipedia.org/wiki/Microcontroller).
+
+Then, it checks for a few seconds if any firmware update request is being made via Bluetooth. If so it proceeds with the update request, and if not it moves on and launch the main program (the die's [firmware](https://github.com/GameWithPixels/DiceFirmware)).
+
+This program is based on Nordic Semiconductor nRF5 SDK Bootloader example. For more information about this example and others see [here](https://infocenter.nordicsemi.com/topic/sdk_nrf5_v17.0.2/lib_bootloader_modules.html).
+
+Nordic's SDK, Make and GCC are required to build the _bootloader_.
+
+## Building The Bootloader
+
+### Environment Setup on Windows
+
+#### Nordic SDK 17
+
+As the time of this writing, version 17.0.2 is used, but any 17 release should work.
+
+We need Nordic's library to access the Pixels microcontroller features including Bluetooth.
+Such libraries are called [SoftDevice](https://infocenter.nordicsemi.com/topic/ug_gsg_ses/UG/gsg/softdevices.html).
+
+The Pixels have a limited amount of memory so we want to use the _SoftDevice_ with the smallest memory footprint and with BLTE support. S112 is our best choice.
+
+1. Go to Nordic's SDK download [page](https://www.nordicsemi.com/Products/Development-software/nRF5-SDK/Download#infotabs).
+2. Select the latest 17.x SDK release
+3. Scroll down and optionally unselect all SoftDevices (they are included in the SDK anyways)
+4. Scroll down to the bottom of the page, it displays the list of selected packages: you should have at least `nRF5 SDK 17`
+5. Download and extract the contents of the `nRF5 SDK 17` zip file to your machine, for example to `C:\nRF5_SDK`
+
+From now on, we'll refer to the SDK install folder as `SDK_ROOT`.
+
+We'll compile the SDK once GCC and Make are installed.
+
+#### GCC and Make
+
+Nordic lists which toolchains they support in their release notes.
+
+Open `SDK_ROOT/documentation/release_notes.txt` and search for _GCC_. It should read something like `GCC: GCC ARM Embedded 9.2019q4.major`.
+
+The Arm Developer [website](https://developer.arm.com) provides the _GCC_ version we need [here](https://developer.arm.com/tools-and-software/open-source-software/developer-tools/gnu-toolchain/gnu-rm/downloads/9-2019-q4-major).
+
+Download the "Windows 32-bit Installer" and run it. Be sure to check "Add Path" during the installation process.
+
+Go to _Make_ for Windows official [website](http://gnuwin32.sourceforge.net/packages/make.htm#download).
+Download the "Complete package, except sources" and run the installer. Yes, it dates from 2006!
+
+Alternatively you can use [Chocolatey](https://community.chocolatey.org/packages/make) to install a more recent version of _GNU Make_.
+
+Once the setup is complete, be sure to add the location of _Make_ to your system `PATH`. The default installation folder is `C:\Program Files (x86)\GnuWin32\bin`.
+
+#### uECC
+
+Clone (or copy) [this](https://github.com/kmackay/micro-ecc) encryption module in `SDK_ROOT/external/micro-ecc/micro-ecc`.
+
+Then run `SDK_ROOT/external/micro-ecc/build_all.bat`.
+We recommend using the command line rather than directly running the batch file so the results will stay on screen and can be checked. There should be no error.
+
+_Note: Nordic's documentation [page](https://infocenter.nordicsemi.com/topic/com.nordic.infocenter.sdk5.v15.0.0/lib_crypto_backend_micro_ecc.html) on uECC._
+
+### Building
+
+Make sure that the `SDK_ROOT` is pointing to the correct folder in the project's _Makefile_.
+
+Open a command line and go the folder where this repository is cloned and run `make`.
+
+The output files are placed in the `_builds` folder, you'll find `.hex` file and its companion files.
+
+## Programming a die (with USB)
+
+When shipping out from the factory the dice electronic boards have no software on it.
+The only way to program them at this point is with a wired connection.
+
+For that we're using a [J-Link](https://www.segger.com/products/debug-probes/j-link/models/j-link-plus/) debug probe from Segger.
+
+### Environment Setup on Windows
+
+Nordic's Bluetooth Low Energy development tools are available [here](https://www.nordicsemi.com/Products/Bluetooth-Low-Energy/Development-tools#infotabs).
+
+Download and install _nRF Command Line Tools_ for Win32 (version 10.12.2 at the time of this writing).
+During the installation process, you should be prompted to also install the J-Link drivers.
+
+Optionally you may want to download and install _nRF Connect for Desktop_, a suite of visual tools to work with Nordic's BLTE microcontrollers.
+
+We like to use the _Programmer_ tool to inspect and sometimes reprogram the flash memory.
+
+### Program the flash memory
+
+Using the provided _Makefile_ you may:
+
+* `reset`: restart the device
+* `flash`: program the _bootloader_ into the die's memory and reboot the device
+* `flash_softdevice`: program the _SoftDevice_ into the die's memory and reboot the device
+* `erase`: entirely erase the flash memory
+* `reflash`: calls `erase`, `flash` and `flash_softdevice` in a sequence
+
+The latter is the most useful command.
+
+Example:
+```
+make reflash
+```
