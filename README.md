@@ -17,7 +17,7 @@ Nordic's SDK, Make and GCC are required to build the bootloader.
 
 #### Nordic SDK 17
 
-As the time of this writing, version 17.0.2 is used, but any 17 release should work.
+As the time of writing, version 17.0.2 is used, but any 17 release should work.
 
 We need Nordic's library to access the Pixels microcontroller features including Bluetooth.
 Such libraries are called [SoftDevice](https://infocenter.nordicsemi.com/topic/ug_gsg_ses/UG/gsg/softdevices.html).
@@ -80,7 +80,7 @@ For that we're using a [J-Link](https://www.segger.com/products/debug-probes/j-l
 
 Nordic's Bluetooth Low Energy development tools are available [here](https://www.nordicsemi.com/Products/Bluetooth-Low-Energy/Development-tools#infotabs).
 
-Download and install _nRF Command Line Tools_ for Win32 (version 10.12.2 at the time of this writing).
+Download and install _nRF Command Line Tools_ for Win32 (version 10.12.2 at the time of writing).
 During the installation process, you should be prompted to also install the J-Link drivers.
 
 Optionally you may want to download and install _nRF Connect for Desktop_, a suite of visual tools to work with Nordic's BLTE microcontrollers.
