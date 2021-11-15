@@ -19,10 +19,10 @@ Nordic's SDK, Make and GCC are required to build the bootloader.
 
 As the time of writing, version 17.0.2 is used, but any 17 release should work.
 
-We need Nordic's library to access the Pixels microcontroller features including Bluetooth.
-Such libraries are called [SoftDevice](https://infocenter.nordicsemi.com/topic/ug_gsg_ses/UG/gsg/softdevices.html).
+We need Nordic's library to access the Pixels microcontroller features including Bluetooth Low Energy (BLE).
+This library is named [SoftDevice](https://infocenter.nordicsemi.com/topic/ug_gsg_ses/UG/gsg/softdevices.html).
 
-The Pixels have a limited amount of memory so we want to use the _SoftDevice_ with the smallest memory footprint and with BLTE support. S112 is our best choice.
+The Pixels have a limited amount of memory so we want to use the _SoftDevice_ with the smallest memory footprint and with BLE support. S112 is our best choice.
 
 1. Go to Nordic's SDK download [page](https://www.nordicsemi.com/Products/Development-software/nRF5-SDK/Download#infotabs).
 2. Select the latest 17.x SDK release
