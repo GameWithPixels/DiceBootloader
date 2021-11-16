@@ -7,9 +7,11 @@ It configures memory system and a few pins of the [microcontroller](https://en.w
 
 Then, it checks for a few seconds if any firmware update request is being made via Bluetooth. If so it proceeds with the update request, and if not it moves on and launch the main program (the die's [firmware](https://github.com/GameWithPixels/DiceFirmware)).
 
-This program is based on Nordic Semiconductor nRF5 SDK Bootloader example. For more information about this example and others see [here](https://infocenter.nordicsemi.com/topic/sdk_nrf5_v17.0.2/libbootloadermodules.html).
+This program is based on Nordic Semiconductor nRF5 SDK Bootloader example. See [here](https://infocenter.nordicsemi.com/topic/sdk_nrf5_v17.0.0/lib_bootloader.html) for more details about the functionalities of the bootloader.
 
 Nordic's SDK, Make and GCC are required to build the bootloader.
+
+_Note: in current designs, the dice come with a [nRF52810](https://www.nordicsemi.com/Products/nRF52810) chip from Nordic.
 
 ## Building The Bootloader
 
@@ -58,7 +60,7 @@ Clone (or copy) [this](https://github.com/kmackay/micro-ecc) encryption module i
 Then run `SDK_ROOT/external/micro-ecc/build_all.bat`.
 We recommend using the command line rather than directly running the batch file so the results will stay on screen and can be checked. There should be no error.
 
-_Note: Nordic's documentation [page](https://infocenter.nordicsemi.com/topic/com.nordic.infocenter.sdk5.v15.0.0/lib_crypto_backend_micro_ecc.html) on uECC._
+_Note: Nordic's documentation [page](https://infocenter.nordicsemi.com/topic/sdk_nrf5_v17.0.2/lib_crypto_backend_micro_ecc.html) on uECC._
 
 ### Building
 
@@ -66,7 +68,7 @@ Make sure that the _Makefile_ `SDK_ROOT` variable is pointing to the correct fol
 
 Open a command line and go the folder where this repository is cloned and run `make`.
 
-The output files are placed in the `_builds` folder, by default those are release files (not debug).
+The output files are placed in the `_build` folder, by default those are release files (not debug).
 The one that we want to program to the flash memory is the `.hex` file (more about this format [here](https://en.wikipedia.org/wiki/Intel_HEX)) .
 
 ## Programming a die (with USB)
