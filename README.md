@@ -43,9 +43,19 @@ From now on, we'll refer to the SDK install folder as `SDK_ROOT`.
 
 We'll compile the SDK once *GCC* and *Make* are installed.
 
+*Note:* The latest SDK may not include the specific *SoftDevice* image that we use.
+The exact version is specified in the first few lines of the project's *Makefile*.
+
+If the required *SoftDevice* image is missing, you will get a `ERROR: The file specified could not be found`
+when trying to program the flash memory of a die.
+
+All the released S112 *SoftDevice* images are available on
+[Nordic](https://www.nordicsemi.com/Products/Development-software/s112/download)'s website.
+If necessary, download the correct one and copy the hex file into `SDK_ROOT/components/softdevice/s112/hex`.
+
 #### GCC and Make
 
-Nordic lists which toolchains they support in their release notes.
+Nordic lists which toolchain they support in their release notes.
 
 Open `SDK_ROOT/documentation/release_notes.txt` and search for *GCC*.
 It should read something like `GCC: GCC ARM Embedded 9.2020-q2.major`.
@@ -71,10 +81,11 @@ be added to the `PATH` (usually `C:\ProgramData\chocolatey\bin`).
 
 #### uECC
 
-Clone (or copy) the [micro-ecc](https://github.com/kmackay/micro-ecc) encryption module sources
-into `SDK_ROOT/external/micro-ecc/micro-ecc`.
+Open a prompt in `SDK_ROOT/external/micro-ecc/micro-ecc` and run
+`SDK_ROOT/external/micro-ecc/build_all.bat`.
+It will clone [micro-ecc](https://github.com/kmackay/micro-ecc) encryption source code and
+build the encryption modules for nrf51 and nrf52 .
 
-Then run `SDK_ROOT/external/micro-ecc/build_all.bat`.
 We recommend using the command line rather than directly running the batch file so the results
 will stay on screen and can be checked. There should be no error.
 

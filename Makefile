@@ -1,14 +1,22 @@
 PROJECT_NAME     := secure_bootloader_ble_s112_pca10040e
 TARGETS          := nrf52810_xxaa_s112
 OUTPUT_DIRECTORY := _build
-
-SDK_ROOT := C:/nRF5_SDK
 PROJ_DIR := .
+#SDK_VER = 17
 
-JLINK = #-s 851002453 #- Base
+# SDK 17 path
+SDK_ROOT := C:/nRF5_SDK
+
+# SoftDevice image filename and path
+# Download latest SoftDevice here: https://www.nordicsemi.com/Products/Development-software/s112/download
+#SOFTDEVICE_HEX_FILE := s112_nrf52_7.0.1_softdevice.hex
+#SOFTDEVICE_HEX_FILE := s112_nrf52_7.2.0_softdevice.hex
+SOFTDEVICE_HEX_FILE := s112_nrf52_7.3.0_softdevice.hex
+
+SOFTDEVICE_HEX_PATH := $(SDK_ROOT)/components/softdevice/s112/hex/$(SOFTDEVICE_HEX_FILE)
 
 $(OUTPUT_DIRECTORY)/nrf52810_xxaa_s112.out: \
-  LINKER_SCRIPT  := secure_bootloader_gcc_nrf52.ld
+  LINKER_SCRIPT := secure_bootloader_gcc_nrf52.ld
 
 # Source files common to all targets
 SRC_FILES += \
@@ -242,7 +250,7 @@ LIB_FILES += -lc -lnosys -lm
 
 .PHONY: default help
 
-# Default target - first one defined
+# Default target = first one defined
 default: nrf52810_xxaa_s112
 
 # Print all targets that can be built
@@ -265,19 +273,19 @@ $(foreach target, $(TARGETS), $(call define_target, $(target)))
 # Flash the program
 flash: default
 	@echo Flashing: $(OUTPUT_DIRECTORY)/nrf52810_xxaa_s112.hex
-	nrfjprog -f nrf52 $(JLINK) --program $(OUTPUT_DIRECTORY)/nrf52810_xxaa_s112.hex --sectorerase
-	nrfjprog -f nrf52 $(JLINK) --reset
+	nrfjprog -f nrf52 --program $(OUTPUT_DIRECTORY)/nrf52810_xxaa_s112.hex --sectorerase
+	nrfjprog -f nrf52 --reset
 
 # Flash softdevice
 flash_softdevice:
-	@echo Flashing: s112_nrf52_7.2.0_softdevice.hex
-	nrfjprog -f nrf52 $(JLINK) --program $(SDK_ROOT)/components/softdevice/s112/hex/s112_nrf52_7.2.0_softdevice.hex --sectorerase
-	nrfjprog -f nrf52 $(JLINK) --reset
+	@echo ==== Flashing: $(SOFTDEVICE_HEX_FILE) ====
+	nrfjprog -f nrf52 --program $(SOFTDEVICE_HEX_PATH) --sectorerase
+	nrfjprog -f nrf52 --reset
 
 erase:
-	nrfjprog -f nrf52 $(JLINK) --eraseall
+	nrfjprog -f nrf52 --eraseall
 
 reflash:  erase  flash  flash_softdevice
 
 reset:
-	nrfjprog -f nrf52 $(JLINK) --reset
+	nrfjprog -f nrf52 --reset
