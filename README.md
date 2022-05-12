@@ -61,9 +61,8 @@ Open `SDK_ROOT/documentation/release_notes.txt` and search for *GCC*.
 It should read something like `GCC: GCC ARM Embedded 9.2020-q2.major`.
 ARM has issued an update for this version, so the one we are actually looking for is `9-2020-q2-update`.
 
-The Arm Developer [website](https://developer.arm.com) provides the *GCC*
-[version](https://developer.arm.com/tools-and-software/open-source-software/developer-tools/gnu-toolchain/gnu-rm/downloads/9-2020-q2-update)
-we need.
+The Arm Developer [website](https://developer.arm.com/downloads/-/gnu-rm) provides different versions
+of the *Arm GNU Toolchain*, search for the version specified the release notes.
 
 Download the "Windows 32-bit Installer" (usually the first link in the list) and run it.
 Be sure to check "Add Path" during the installation process.
@@ -81,8 +80,7 @@ be added to the `PATH` (usually `C:\ProgramData\chocolatey\bin`).
 
 #### uECC
 
-Open a prompt in `SDK_ROOT/external/micro-ecc/micro-ecc` and run
-`SDK_ROOT/external/micro-ecc/build_all.bat`.
+Open a prompt in `SDK_ROOT/external/micro-ecc` and run `build_all.bat`.
 It will clone [micro-ecc](https://github.com/kmackay/micro-ecc) encryption source code and
 build the encryption modules for nrf51 and nrf52 .
 
