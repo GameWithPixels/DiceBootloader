@@ -192,7 +192,7 @@
 
 // <i> Timer before starting the app
 #ifndef CUSTOM_BL_DFU_INACTIVITY_TIMEOUT_MS
-#define CUSTOM_BL_DFU_INACTIVITY_TIMEOUT_MS 3000
+#define CUSTOM_BL_DFU_INACTIVITY_TIMEOUT_MS 1000
 #endif
 
 // </h> 
