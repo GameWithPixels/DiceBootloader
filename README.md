@@ -53,6 +53,8 @@ All the released S112 *SoftDevice* images are available on
 [Nordic](https://www.nordicsemi.com/Products/Development-software/s112/download)'s website.
 If necessary, download the correct one and copy the hex file into `SDK_ROOT/components/softdevice/s112/hex`.
 
+*Note:* Be sure to only copy the hex image file and to not update the SDK header files!
+
 #### GCC and Make
 
 Nordic lists which toolchain they support in their release notes.
