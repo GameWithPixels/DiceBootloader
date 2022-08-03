@@ -118,7 +118,7 @@ debug probe from Segger.
 Nordic's Bluetooth Low Energy development tools are available
 [here](https://www.nordicsemi.com/Products/Bluetooth-Low-Energy/Development-tools#infotabs).
 
-Download and install "nRF Command Line Tools" for Win32 (version 10.15.1 at the time of writing).
+Download and install "nRF Command Line Tools" for Win32 (version 10.17.0 at the time of writing).
 During the installation process, you should be prompted to also install the J-Link drivers.
 
 Optionally you may want to download and install "nRF Connect for Desktop",
