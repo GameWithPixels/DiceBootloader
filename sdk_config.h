@@ -1164,8 +1164,9 @@
 #endif
 
 // <s> NRF_DFU_BLE_ADV_NAME - Default advertising name.
+extern char g_advertised_name[]; // We use this global variable to dynamically set the name
 #ifndef NRF_DFU_BLE_ADV_NAME
-#define NRF_DFU_BLE_ADV_NAME "DiceDfuTarg"
+#define NRF_DFU_BLE_ADV_NAME g_advertised_name
 #endif
 
 // <o> NRF_DFU_BLE_ADV_INTERVAL - Advertising interval (in units of 0.625 ms) 

@@ -406,6 +406,12 @@ static bool dfu_enter_check(void)
     return false;
 }
 
+uint32_t getDeviceID() {
+    return NRF_FICR->DEVICEID[1] ^ NRF_FICR->DEVICEID[0];
+}
+
+char g_advertised_name[12] = "PXL";
+
 ret_code_t custom_bootloader_enter_dfu() {
     nrf_bootloader_wdt_init();
     scheduler_init();
@@ -420,6 +426,13 @@ ret_code_t custom_bootloader_enter_dfu() {
 
     // uint32_t initial_timeout = NRF_BOOTLOADER_MS_TO_TICKS(NRF_BL_DFU_INACTIVITY_TIMEOUT_MS);
     // nrf_bootloader_dfu_inactivity_timer_restart(initial_timeout, inactivity_timeout);
+
+    const uint32_t uniqueId = getDeviceID();
+    for (int i = 0; i < 8; ++i) {
+        const char value = (uniqueId >> ((7 - i) << 2)) & 0xf;
+        g_advertised_name[i + 3] = value + (value < 10 ? '0' : 'A' - 10);
+    }
+    g_advertised_name[11] = '\0';
 
     ret_val = nrf_dfu_init(dfu_observer);
     if (ret_val != NRF_SUCCESS)
