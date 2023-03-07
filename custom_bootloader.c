@@ -171,6 +171,7 @@ static void dfu_observer(nrf_dfu_evt_type_t evt_type)
 {
     switch (evt_type)
     {
+        case NRF_DFU_EVT_TRANSPORT_ACTIVATED:
         case NRF_DFU_EVT_DFU_STARTED:
         case NRF_DFU_EVT_OBJECT_RECEIVED:
             nrf_bootloader_dfu_inactivity_timer_restart(
