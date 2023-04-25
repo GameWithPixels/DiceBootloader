@@ -54,6 +54,7 @@ SRC_FILES += \
   $(PROJ_DIR)/main.c \
   $(SDK_ROOT)/components/ble/common/ble_srv_common.c \
   $(PROJ_DIR)/custom_bootloader.c \
+  $(PROJ_DIR)/neopixel_bitbang.c \
   $(SDK_ROOT)/components/libraries/bootloader/nrf_bootloader_app_start.c \
   $(SDK_ROOT)/components/libraries/bootloader/nrf_bootloader_app_start_final.c \
   $(SDK_ROOT)/components/libraries/bootloader/nrf_bootloader_dfu_timers.c \

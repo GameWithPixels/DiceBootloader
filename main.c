@@ -124,17 +124,6 @@ static void dfu_observer(nrf_dfu_evt_type_t evt_type)
 /**@brief Function for application main entry. */
 int main(void)
 {
-    uint32_t dataPin =  0;
-    uint32_t clockPin = 1;
-    uint32_t powerPin = 10;
-
-    nrf_gpio_cfg_output(dataPin);
-    nrf_gpio_cfg_output(clockPin);
-    nrf_gpio_cfg_output(powerPin);
-    nrf_gpio_pin_clear(dataPin);
-    nrf_gpio_pin_clear(clockPin);
-    nrf_gpio_pin_clear(powerPin);
-
     uint32_t ret_val;
 
     // Must happen before flash protection is applied, since it edits a protected page.
