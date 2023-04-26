@@ -1208,7 +1208,7 @@ extern char g_advertised_name[]; // We use this global variable to dynamically s
 // <i> GAP connection supervision timeout, in milliseconds.
 
 #ifndef NRF_DFU_BLE_CONN_SUP_TIMEOUT_MS
-#define NRF_DFU_BLE_CONN_SUP_TIMEOUT_MS 6000
+#define NRF_DFU_BLE_CONN_SUP_TIMEOUT_MS 3000
 #endif
 
 // </h> 
