@@ -93,8 +93,6 @@ SRC_FILES += \
   $(SDK_ROOT)/external/segger_rtt/SEGGER_RTT.c \
   $(SDK_ROOT)/external/segger_rtt/SEGGER_RTT_Syscalls_GCC.c \
   $(SDK_ROOT)/external/segger_rtt/SEGGER_RTT_printf.c \
-  $(SDK_ROOT)/integration/nrfx/legacy/nrf_drv_uart.c \
-  $(SDK_ROOT)/modules/nrfx/drivers/src/nrfx_uarte.c \
   $(SDK_ROOT)/components/libraries/log/src/nrf_log_backend_rtt.c \
   $(SDK_ROOT)/components/libraries/log/src/nrf_log_backend_uart.c \
   $(SDK_ROOT)/components/libraries/log/src/nrf_log_backend_serial.c \
@@ -199,7 +197,7 @@ CFLAGS += -mfloat-abi=soft
 
 # keep every function in a separate section, this allows linker to discard unused ones
 CFLAGS += -ffunction-sections -fdata-sections -fno-strict-aliasing
-CFLAGS += -fno-builtin -fshort-enums -flto
+CFLAGS += -fno-builtin -fshort-enums -flto -Wno-unused-function
 
 # C++ flags common to all targets
 CXXFLAGS += $(OPT)

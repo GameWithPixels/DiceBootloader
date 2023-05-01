@@ -124,6 +124,11 @@ static void dfu_observer(nrf_dfu_evt_type_t evt_type)
 /**@brief Function for application main entry. */
 int main(void)
 {
+    // Enable internal DC-DC regulator. This seems to make the softdevice happier, although I have no clue why
+    // (it's better to have it enabled, but the chip doesn't *need* to have it enabled).
+    // Without the DC-DC regulator enabled, the softdevice would cause a brownout reset while advertising.
+    NRF_POWER->DCDCEN = 1;
+
     uint32_t ret_val;
 
     // Must happen before flash protection is applied, since it edits a protected page.

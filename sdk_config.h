@@ -1201,7 +1201,7 @@ extern char g_advertised_name[]; // We use this global variable to dynamically s
 // <i> Maximum GAP connection interval, in 1.25 ms units.
 
 #ifndef NRF_DFU_BLE_MAX_CONN_INTERVAL
-#define NRF_DFU_BLE_MAX_CONN_INTERVAL 12
+#define NRF_DFU_BLE_MAX_CONN_INTERVAL 24
 #endif
 
 // <o> NRF_DFU_BLE_CONN_SUP_TIMEOUT_MS - Supervision timeout (ms). 
@@ -1691,9 +1691,9 @@ extern char g_advertised_name[]; // We use this global variable to dynamically s
 
 // </h> 
 
-#define NRFX_UARTE_ENABLED 1
+#define NRFX_UARTE_ENABLED 0
 
-#define NRFX_UARTE0_ENABLED 1
+#define NRFX_UARTE0_ENABLED 0
 
 #define UART_EASY_DMA_SUPPORT 1
 
@@ -1710,9 +1710,9 @@ extern char g_advertised_name[]; // We use this global variable to dynamically s
 //==========================================================
 
 // <e> UART_ENABLED - nrf_drv_uart - UART/UARTE peripheral driver - legacy layer
-#define UART_ENABLED 1
+#define UART_ENABLED 0
 
-#define UART0_ENABLED 1
+#define UART0_ENABLED 0
 
 //==========================================================
 
