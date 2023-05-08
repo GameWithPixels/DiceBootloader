@@ -19,6 +19,7 @@ SOFTDEVICE_HEX_PATH := $(SDK_ROOT)/components/softdevice/s112/hex/$(SOFTDEVICE_H
 $(OUTPUT_DIRECTORY)/nrf52810_xxaa_s112.out: \
   LINKER_SCRIPT := secure_bootloader_gcc_nrf52.ld
 
+
 # Source files common to all targets
 SRC_FILES += \
   $(SDK_ROOT)/modules/nrfx/mdk/gcc_startup_nrf52810.S \
@@ -55,6 +56,10 @@ SRC_FILES += \
   $(SDK_ROOT)/components/ble/common/ble_srv_common.c \
   $(PROJ_DIR)/custom_bootloader.c \
   $(PROJ_DIR)/neopixel_bitbang.c \
+  $(PROJ_DIR)/svcs/svcs_a2d.c \
+  $(PROJ_DIR)/svcs/svcs_board_config.c \
+  $(PROJ_DIR)/svcs/svcs_neopixel.c \
+  $(PROJ_DIR)/rainbow.c \
   $(SDK_ROOT)/components/libraries/bootloader/nrf_bootloader_app_start.c \
   $(SDK_ROOT)/components/libraries/bootloader/nrf_bootloader_app_start_final.c \
   $(SDK_ROOT)/components/libraries/bootloader/nrf_bootloader_dfu_timers.c \
@@ -83,25 +88,27 @@ SRC_FILES += \
   $(SDK_ROOT)/components/softdevice/common/nrf_sdh.c \
   $(SDK_ROOT)/components/softdevice/common/nrf_sdh_ble.c \
   $(SDK_ROOT)/components/softdevice/common/nrf_sdh_soc.c \
-  $(SDK_ROOT)/components/libraries/crypto/backend/oberon/oberon_backend_chacha_poly_aead.c \
-  $(SDK_ROOT)/components/libraries/crypto/backend/oberon/oberon_backend_ecc.c \
-  $(SDK_ROOT)/components/libraries/crypto/backend/oberon/oberon_backend_ecdh.c \
-  $(SDK_ROOT)/components/libraries/crypto/backend/oberon/oberon_backend_ecdsa.c \
-  $(SDK_ROOT)/components/libraries/crypto/backend/oberon/oberon_backend_eddsa.c \
-  $(SDK_ROOT)/components/libraries/crypto/backend/oberon/oberon_backend_hash.c \
-  $(SDK_ROOT)/components/libraries/crypto/backend/oberon/oberon_backend_hmac.c \
-  $(SDK_ROOT)/external/segger_rtt/SEGGER_RTT.c \
-  $(SDK_ROOT)/external/segger_rtt/SEGGER_RTT_Syscalls_GCC.c \
-  $(SDK_ROOT)/external/segger_rtt/SEGGER_RTT_printf.c \
-  $(SDK_ROOT)/components/libraries/log/src/nrf_log_backend_rtt.c \
-  $(SDK_ROOT)/components/libraries/log/src/nrf_log_backend_uart.c \
-  $(SDK_ROOT)/components/libraries/log/src/nrf_log_backend_serial.c \
-  $(SDK_ROOT)/components/libraries/log/src/nrf_log_default_backends.c \
-  $(SDK_ROOT)/components/libraries/log/src/nrf_log_frontend.c \
-  $(SDK_ROOT)/components/libraries/log/src/nrf_log_str_formatter.c \
-  $(SDK_ROOT)/external/fprintf/nrf_fprintf.c \
-  $(SDK_ROOT)/external/fprintf/nrf_fprintf_format.c \
   $(SDK_ROOT)/components/libraries/memobj/nrf_memobj.c \
+	$(SDK_ROOT)/modules/nrfx/drivers/src/nrfx_saadc.c \
+	$(SDK_ROOT)/modules/nrfx/drivers/src/nrfx_pwm.c \
+  # $(SDK_ROOT)/components/libraries/crypto/backend/oberon/oberon_backend_chacha_poly_aead.c \
+  # $(SDK_ROOT)/components/libraries/crypto/backend/oberon/oberon_backend_ecc.c \
+  # $(SDK_ROOT)/components/libraries/crypto/backend/oberon/oberon_backend_ecdh.c \
+  # $(SDK_ROOT)/components/libraries/crypto/backend/oberon/oberon_backend_ecdsa.c \
+  # $(SDK_ROOT)/components/libraries/crypto/backend/oberon/oberon_backend_eddsa.c \
+  # $(SDK_ROOT)/components/libraries/crypto/backend/oberon/oberon_backend_hash.c \
+  # $(SDK_ROOT)/components/libraries/crypto/backend/oberon/oberon_backend_hmac.c \
+  # $(SDK_ROOT)/external/segger_rtt/SEGGER_RTT.c \
+  # $(SDK_ROOT)/external/segger_rtt/SEGGER_RTT_Syscalls_GCC.c \
+  # $(SDK_ROOT)/external/segger_rtt/SEGGER_RTT_printf.c \
+  # $(SDK_ROOT)/components/libraries/log/src/nrf_log_backend_rtt.c \
+  # $(SDK_ROOT)/components/libraries/log/src/nrf_log_backend_uart.c \
+  # $(SDK_ROOT)/components/libraries/log/src/nrf_log_backend_serial.c \
+  # $(SDK_ROOT)/components/libraries/log/src/nrf_log_default_backends.c \
+  # $(SDK_ROOT)/components/libraries/log/src/nrf_log_frontend.c \
+  # $(SDK_ROOT)/components/libraries/log/src/nrf_log_str_formatter.c \
+  # $(SDK_ROOT)/external/fprintf/nrf_fprintf.c \
+  # $(SDK_ROOT)/external/fprintf/nrf_fprintf_format.c \
 
 # Include folders common to all targets
 INC_FOLDERS += \
@@ -159,7 +166,6 @@ INC_FOLDERS += \
 
 # Libraries common to all targets
 LIB_FILES += \
-  $(SDK_ROOT)/external/nrf_oberon/lib/cortex-m4/soft-float/liboberon_3.0.8.a \
   $(SDK_ROOT)/external/micro-ecc/nrf52nf_armgcc/armgcc/micro_ecc_lib_nrf52.a \
 
 # Optimization flags
@@ -192,8 +198,10 @@ CFLAGS += -mcpu=cortex-m4
 CFLAGS += -mthumb -mabi=aapcs
 CFLAGS += -Wall -Werror
 CFLAGS += -mfloat-abi=soft
+CFLAGS += -DPIXELS_BOOTLOADER
 # CFLAGS += -DDEBUG_NRF
 # CFLAGS += -DNRF_DFU_DEBUG_VERSION
+
 
 # keep every function in a separate section, this allows linker to discard unused ones
 CFLAGS += -ffunction-sections -fdata-sections -fno-strict-aliasing

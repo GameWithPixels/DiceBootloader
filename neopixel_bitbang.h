@@ -11,8 +11,9 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-void NeopixelBitBangSetLEDs(uint32_t* colors, int count, uint8_t dataPin, uint8_t powerPin);
-
+//void setDebugLEDs(uint32_t* colors, int count);
+void SetHighestLED(uint32_t color);
+void ClearLEDs();
 #ifdef __cplusplus
 }
 #endif

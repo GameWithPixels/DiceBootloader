@@ -101,45 +101,6 @@
 #ifndef NRF_BL_DFU_ENTER_METHOD_BUTTON
 #define NRF_BL_DFU_ENTER_METHOD_BUTTON 0
 #endif
-// <o> NRF_BL_DFU_ENTER_METHOD_BUTTON_PIN  - Button for entering DFU mode.
- 
-// <0=> 0 (P0.0) 
-// <1=> 1 (P0.1) 
-// <2=> 2 (P0.2) 
-// <3=> 3 (P0.3) 
-// <4=> 4 (P0.4) 
-// <5=> 5 (P0.5) 
-// <6=> 6 (P0.6) 
-// <7=> 7 (P0.7) 
-// <8=> 8 (P0.8) 
-// <9=> 9 (P0.9) 
-// <10=> 10 (P0.10) 
-// <11=> 11 (P0.11) 
-// <12=> 12 (P0.12) 
-// <13=> 13 (P0.13) 
-// <14=> 14 (P0.14) 
-// <15=> 15 (P0.15) 
-// <16=> 16 (P0.16) 
-// <17=> 17 (P0.17) 
-// <18=> 18 (P0.18) 
-// <19=> 19 (P0.19) 
-// <20=> 20 (P0.20) 
-// <21=> 21 (P0.21) 
-// <22=> 22 (P0.22) 
-// <23=> 23 (P0.23) 
-// <24=> 24 (P0.24) 
-// <25=> 25 (P0.25) 
-// <26=> 26 (P0.26) 
-// <27=> 27 (P0.27) 
-// <28=> 28 (P0.28) 
-// <29=> 29 (P0.29) 
-// <30=> 30 (P0.30) 
-// <31=> 31 (P0.31) 
-
-#ifndef NRF_BL_DFU_ENTER_METHOD_BUTTON_PIN
-#define NRF_BL_DFU_ENTER_METHOD_BUTTON_PIN 6
-#endif
-
 // </e>
 
 // <q> NRF_BL_DFU_ENTER_METHOD_PINRESET  - Enter DFU mode on pin reset.
@@ -192,7 +153,13 @@
 
 // <i> Timer before starting the app
 #ifndef CUSTOM_BL_DFU_INACTIVITY_TIMEOUT_MS
-#define CUSTOM_BL_DFU_INACTIVITY_TIMEOUT_MS 1000
+#define CUSTOM_BL_DFU_INACTIVITY_TIMEOUT_MS 1024
+#endif
+
+// divide the app start timeout in this many steps (this is so that we can update LEDs)
+// So if timeout is 1000ms and steps is 10, then we'll wait for 100ms 10 times
+#ifndef CUSTOM_BL_DFU_INACTIVITY_TIMEOUT_STEPS
+#define CUSTOM_BL_DFU_INACTIVITY_TIMEOUT_STEPS 16
 #endif
 
 // </h> 
@@ -1290,7 +1257,7 @@ extern char g_advertised_name[]; // We use this global variable to dynamically s
 // <i> firmware upgrade. The size must be a multiple of the flash page size.
 
 #ifndef NRF_DFU_APP_DATA_AREA_SIZE
-#define NRF_DFU_APP_DATA_AREA_SIZE 8192
+#define NRF_DFU_APP_DATA_AREA_SIZE 4096
 #endif
 
 // <q> NRF_DFU_IN_APP  - Specifies that this code is in the app, not the bootloader, so some settings are off-limits.
@@ -1336,6 +1303,65 @@ extern char g_advertised_name[]; // We use this global variable to dynamically s
 
 // </h> 
 //==========================================================
+
+// <e> NRFX_PWM_ENABLED - nrfx_pwm - PWM peripheral driver
+//==========================================================
+#define NRFX_PWM_ENABLED 1
+
+// <q> NRFX_PWM0_ENABLED  - Enable PWM0 instance and disable PWM1 and PWM2 instances
+#define NRFX_PWM0_ENABLED 1
+#define NRFX_PWM1_ENABLED 0
+#define NRFX_PWM2_ENABLED 0
+#define NRFX_PWM3_ENABLED 0
+
+// <o> NRFX_PWM_DEFAULT_CONFIG_OUT0_PIN - Out0 pin  <0-31> 
+#define NRFX_PWM_DEFAULT_CONFIG_OUT0_PIN 31
+#define NRFX_PWM_DEFAULT_CONFIG_OUT1_PIN 31
+#define NRFX_PWM_DEFAULT_CONFIG_OUT2_PIN 31
+#define NRFX_PWM_DEFAULT_CONFIG_OUT3_PIN 31
+
+// <o> NRFX_PWM_DEFAULT_CONFIG_BASE_CLOCK  - Base clock
+// <0=> 16 MHz 
+// <1=> 8 MHz 
+// <2=> 4 MHz 
+// <3=> 2 MHz 
+// <4=> 1 MHz 
+// <5=> 500 kHz 
+// <6=> 250 kHz 
+// <7=> 125 kHz 
+#define NRFX_PWM_DEFAULT_CONFIG_BASE_CLOCK 4
+
+// <o> NRFX_PWM_DEFAULT_CONFIG_COUNT_MODE  - Count mode
+// <0=> Up 
+// <1=> Up and Down 
+#define NRFX_PWM_DEFAULT_CONFIG_COUNT_MODE 0
+
+// <o> NRFX_PWM_DEFAULT_CONFIG_TOP_VALUE - Top value 
+#define NRFX_PWM_DEFAULT_CONFIG_TOP_VALUE 1000
+
+// <o> NRFX_PWM_DEFAULT_CONFIG_LOAD_MODE  - Load mode
+// <0=> Common 
+// <1=> Grouped 
+// <2=> Individual 
+// <3=> Waveform 
+#define NRFX_PWM_DEFAULT_CONFIG_LOAD_MODE 0
+
+// <o> NRFX_PWM_DEFAULT_CONFIG_STEP_MODE  - Step mode
+// <0=> Auto 
+// <1=> Triggered 
+#define NRFX_PWM_DEFAULT_CONFIG_STEP_MODE 0
+
+// <o> NRFX_PWM_DEFAULT_CONFIG_IRQ_PRIORITY  - Interrupt priority
+// <0=> 0 (highest) 
+// <1=> 1 
+// <2=> 2 
+// <3=> 3 
+// <4=> 4 
+// <5=> 5 
+// <6=> 6 
+// <7=> 7 
+#define NRFX_PWM_DEFAULT_CONFIG_IRQ_PRIORITY 6
+
 
 // </h> 
 //==========================================================
@@ -1686,7 +1712,7 @@ extern char g_advertised_name[]; // We use this global variable to dynamically s
  
 
 #ifndef NRF_STRERROR_ENABLED
-#define NRF_STRERROR_ENABLED 1
+#define NRF_STRERROR_ENABLED 0
 #endif
 
 // </h> 
@@ -1713,6 +1739,39 @@ extern char g_advertised_name[]; // We use this global variable to dynamically s
 #define UART_ENABLED 0
 
 #define UART0_ENABLED 0
+
+//==========================================================
+// Analog to Digital converter
+//==========================================================
+
+// <e> NRFX_SAADC_ENABLED - nrfx_saadc - SAADC peripheral driver
+#define NRFX_SAADC_ENABLED 1
+
+// <o> NRFX_SAADC_CONFIG_RESOLUTION  - Resolution
+// <0=> 8 bit 
+// <1=> 10 bit 
+// <2=> 12 bit 
+// <3=> 14 bit 
+#define NRFX_SAADC_CONFIG_RESOLUTION 1
+
+// <o> NRFX_SAADC_CONFIG_OVERSAMPLE  - Sample period
+// <0=> Disabled 
+// <1=> 2x 
+// <2=> 4x 
+// <3=> 8x 
+// <4=> 16x 
+// <5=> 32x 
+// <6=> 64x 
+// <7=> 128x 
+// <8=> 256x 
+#define NRFX_SAADC_CONFIG_OVERSAMPLE 0
+
+// <q> NRFX_SAADC_CONFIG_LP_MODE  - Enabling low power mode
+#define NRFX_SAADC_CONFIG_LP_MODE 0
+
+// <o> NRFX_SAADC_CONFIG_IRQ_PRIORITY  - Interrupt priority
+// <0=> 0 (highest) -> 7 (lowest)
+#define NRFX_SAADC_CONFIG_IRQ_PRIORITY 6
 
 //==========================================================
 
@@ -5183,7 +5242,7 @@ extern char g_advertised_name[]; // We use this global variable to dynamically s
 // <2=> NRF_SDH_DISPATCH_MODEL_POLLING 
 
 #ifndef NRF_SDH_DISPATCH_MODEL
-#define NRF_SDH_DISPATCH_MODEL 0
+#define NRF_SDH_DISPATCH_MODEL 1
 #endif
 
 // </h> 

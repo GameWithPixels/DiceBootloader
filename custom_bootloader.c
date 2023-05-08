@@ -59,6 +59,8 @@
 #include "nrf_bootloader_dfu_timers.h"
 #include "app_scheduler.h"
 #include "nrf_dfu_validation.h"
+#include "rainbow.h"
+#include "neopixel_bitbang.h"
 
 static nrf_dfu_observer_t m_user_observer; //<! Observer callback set by the user.
 static volatile bool m_flash_write_done;
@@ -152,21 +154,69 @@ static void inactivity_timeout(void)
     bootloader_reset(true);
 }
 
-void custom_app_start(void * p_event_data, uint16_t event_size)
+static void custom_app_start(void * p_event_data, uint16_t event_size)
 {
     nrf_bootloader_app_start();
 }
 
-static void start_app_timeout(void)
+static int app_start_timeout_count = 0;
+static void start_appstart_timeout(void)
 {
-    NRF_LOG_INFO("DFU not connected to, starting app now.");
-    NRF_LOG_PROCESS();
-    app_sched_event_put(NULL, 0, custom_app_start);
+    app_start_timeout_count = 0;
 }
 
+static void UpdateLEDs_AppTimeout() {
+    // Update LEDs and wait some more
+    int fadeTime = CUSTOM_BL_DFU_INACTIVITY_TIMEOUT_MS / 4;
+    int time = app_start_timeout_count * CUSTOM_BL_DFU_INACTIVITY_TIMEOUT_MS / CUSTOM_BL_DFU_INACTIVITY_TIMEOUT_STEPS;
+    int wheelpos = app_start_timeout_count * 256 / CUSTOM_BL_DFU_INACTIVITY_TIMEOUT_STEPS;
 
-/**@brief Function for handling DFU events.
- */
+    uint8_t intensity = BL_LED_INTENSITY;
+    if (time <= fadeTime) {
+        // Ramp up
+        intensity = (uint8_t)(time * BL_LED_INTENSITY / fadeTime);
+    } else if (time >= (CUSTOM_BL_DFU_INACTIVITY_TIMEOUT_MS - fadeTime)) {
+        // Ramp down
+        intensity = (uint8_t)((CUSTOM_BL_DFU_INACTIVITY_TIMEOUT_MS - time) * BL_LED_INTENSITY / fadeTime);
+    }
+
+    SetHighestLED(rainbowWheel(wheelpos, intensity));
+}
+
+static void UpdateLEDs_BluetoothActivity() {
+    static bool flip = false;
+    if (flip) {
+        SetHighestLED(TO_COLOR(0, 0, BL_LED_INTENSITY));
+    } else {
+        SetHighestLED(TO_COLOR(0, 0, BL_LED_INTENSITY / 4));
+    }
+    flip = !flip;
+}
+
+static void UpdateLEDs_NoValidApp() {
+    // Set highest LED yellow
+    SetHighestLED(TO_COLOR(BL_LED_INTENSITY, BL_LED_INTENSITY, 0));
+}
+
+static void UpdateLEDs_ValidApp() {
+    UpdateLEDs_AppTimeout();
+}
+
+static void countdown_app_timeout(void)
+{
+    app_start_timeout_count++;
+    if (app_start_timeout_count == CUSTOM_BL_DFU_INACTIVITY_TIMEOUT_STEPS) {
+        // Start the app
+        NRF_LOG_INFO("DFU not connected to, starting app now.");
+        NRF_LOG_PROCESS();
+        app_sched_event_put(NULL, 0, custom_app_start);
+    } else {
+        UpdateLEDs_AppTimeout();
+        nrf_bootloader_dfu_inactivity_timer_restart(NRF_BOOTLOADER_MS_TO_TICKS(CUSTOM_BL_DFU_INACTIVITY_TIMEOUT_MS / CUSTOM_BL_DFU_INACTIVITY_TIMEOUT_STEPS), countdown_app_timeout);
+    }
+}
+
+/**@brief Function for handling DFU events. */
 static void dfu_observer(nrf_dfu_evt_type_t evt_type)
 {
     switch (evt_type)
@@ -174,16 +224,20 @@ static void dfu_observer(nrf_dfu_evt_type_t evt_type)
         case NRF_DFU_EVT_TRANSPORT_ACTIVATED:
         case NRF_DFU_EVT_DFU_STARTED:
         case NRF_DFU_EVT_OBJECT_RECEIVED:
-            nrf_bootloader_dfu_inactivity_timer_restart(
-                        NRF_BOOTLOADER_MS_TO_TICKS(NRF_BL_DFU_INACTIVITY_TIMEOUT_MS),
-                        inactivity_timeout);
+            UpdateLEDs_BluetoothActivity();
+            nrf_bootloader_dfu_inactivity_timer_restart(NRF_BOOTLOADER_MS_TO_TICKS(NRF_BL_DFU_INACTIVITY_TIMEOUT_MS), inactivity_timeout);
             break;
         case NRF_DFU_EVT_DFU_COMPLETED:
+            UpdateLEDs_ValidApp();
+            bootloader_reset(true);
+            break;
         case NRF_DFU_EVT_DFU_ABORTED:
+            UpdateLEDs_NoValidApp();
             bootloader_reset(true);
             break;
         case NRF_DFU_EVT_TRANSPORT_DEACTIVATED:
             // Reset the internal state of the DFU settings to the last stored state.
+            UpdateLEDs_NoValidApp();
             nrf_dfu_settings_reinit();
             break;
         default:
@@ -376,20 +430,6 @@ static bool dfu_enter_check(void)
         return true;
     }
 
-    if (NRF_BL_DFU_ENTER_METHOD_BUTTON &&
-       (nrf_gpio_pin_read(NRF_BL_DFU_ENTER_METHOD_BUTTON_PIN) == 0))
-    {
-        NRF_LOG_DEBUG("DFU mode requested via button.");
-        return true;
-    }
-
-    if (NRF_BL_DFU_ENTER_METHOD_PINRESET &&
-       (NRF_POWER->RESETREAS & POWER_RESETREAS_RESETPIN_Msk))
-    {
-        NRF_LOG_DEBUG("DFU mode requested via pin-reset.");
-        return true;
-    }
-
     if (NRF_BL_DFU_ENTER_METHOD_GPREGRET &&
        (nrf_power_gpregret_get() & BOOTLOADER_DFU_START))
     {
@@ -424,9 +464,6 @@ ret_code_t custom_bootloader_enter_dfu() {
     {
         return NRF_ERROR_INTERNAL;
     }
-
-    // uint32_t initial_timeout = NRF_BOOTLOADER_MS_TO_TICKS(NRF_BL_DFU_INACTIVITY_TIMEOUT_MS);
-    // nrf_bootloader_dfu_inactivity_timer_restart(initial_timeout, inactivity_timeout);
 
     const uint32_t uniqueId = getDeviceID();
     for (int i = 0; i < 8; ++i) {
@@ -535,14 +572,16 @@ ret_code_t nrf_bootloader_init(nrf_dfu_observer_t observer)
             if (dfu_enter_check()) {
                 // DFU is necessary, enter it
                 NRF_LOG_INFO("Entering DFU because no valid app");
+                UpdateLEDs_NoValidApp();
                 nrf_bootloader_dfu_inactivity_timer_restart(NRF_BOOTLOADER_MS_TO_TICKS(NRF_BL_DFU_INACTIVITY_TIMEOUT_MS), inactivity_timeout);
                 custom_bootloader_enter_dfu();
             } else {
                 // App is valid, enter dfu only for a short amount of time, then start the app!
                 NRF_LOG_INFO("Entering DFU for a few seconds, because app is valid");
-                nrf_bootloader_dfu_inactivity_timer_restart(NRF_BOOTLOADER_MS_TO_TICKS(CUSTOM_BL_DFU_INACTIVITY_TIMEOUT_MS), start_app_timeout);
+                UpdateLEDs_ValidApp();
+                start_appstart_timeout();
+                nrf_bootloader_dfu_inactivity_timer_restart(NRF_BOOTLOADER_MS_TO_TICKS(CUSTOM_BL_DFU_INACTIVITY_TIMEOUT_MS / CUSTOM_BL_DFU_INACTIVITY_TIMEOUT_STEPS), countdown_app_timeout);
                 custom_bootloader_app_valid();
-                //nrf_bootloader_app_start();
                 custom_bootloader_enter_dfu();
             }
             break;

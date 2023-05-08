@@ -4,6 +4,7 @@
     // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
     "version": "0.2.0",
     "configurations": [
+
         {
             "name": "JLink RTT Client",
             "preLaunchTask": "JLink RTT Client",
@@ -19,9 +20,22 @@
             "device": "nRF52832_xxAA",
             "interface": "swd",
             "ipAddress": null,
-            "serialNumber": "801001366",
-            "stopOnEntry": false,
-            "armToolchainPath": "C:/Program Files (x86)/GNU Tools Arm Embedded/7 2018-q2-update/bin",
+            "armToolchainPath": "C:/Program Files (x86)/GNU Arm Embedded Toolchain/9 2020-q2-update/bin",
+            "serverpath": "C:/Program Files/SEGGER/JLink/JLinkGDBServerCL.exe",
+            "breakAfterReset": true,
+        },
+        {
+            "name": "Cortex Attach",
+            "cwd": "${workspaceRoot}",
+            "executable": "_build/nrf52810_xxaa_s112.out",
+            "request": "attach",
+            "type": "cortex-debug",
+            "servertype": "jlink",
+            "device": "nRF52832_xxAA",
+            "interface": "swd",
+            "ipAddress": null,
+            "armToolchainPath": "C:/Program Files (x86)/GNU Arm Embedded Toolchain/9 2020-q2-update/bin",
+            "serverpath": "C:/Program Files/SEGGER/JLink/JLinkGDBServerCL.exe",
         },
     ],
     "compounds" : [

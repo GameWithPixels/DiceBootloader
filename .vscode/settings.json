@@ -16,7 +16,16 @@
         "nrf_drv_uart.h": "c",
         "nrfx_uarte.h": "c",
         "sdk_config.h": "c",
-        "xmemory": "c"
+        "xmemory": "c",
+        "nrf_section.h": "c",
+        "svcs_board_config.h": "c",
+        "neopixel.h": "c",
+        "nrf_power.h": "c",
+        "xutility": "c",
+        "algorithm": "c",
+        "initializer_list": "c",
+        "type_traits": "c"
     },
     "arduino.defaultBaudRate": 230400,
+    "cortex-debug.variableUseNaturalFormat": false,
 }
