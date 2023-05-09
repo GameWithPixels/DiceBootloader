@@ -155,7 +155,7 @@ static const struct Board_t* currentBoard;
 
 #include "nrf_sdm.h"
 
-SVCALL(PIXELS_SVCS_GETBOARD, const struct Board_t*, svcs_getBoard_SVC());
+//SVCALL(PIXELS_SVCS_GETBOARD, const struct Board_t*, svcs_getBoard_SVC());
 
 #endif //defined(PIXELS_BOOTLOADER) || defined(PIXELS_FIRMWARE_DEBUG)
 
@@ -227,7 +227,7 @@ const struct Board_t* svcs_getBoard() {
 }
 
 #ifdef PIXELS_BOOTLOADER
-NRF_SVC_FUNCTION_REGISTER(PIXELS_SVCS_GETBOARD, getBoard_instance, svcs_getBoard);
+//NRF_SVC_FUNCTION_REGISTER(PIXELS_SVCS_GETBOARD, getBoard_instance, svcs_getBoard);
 #endif
 
 void svcs_setNTC_ID_VDD() {

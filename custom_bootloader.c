@@ -60,7 +60,7 @@
 #include "app_scheduler.h"
 #include "nrf_dfu_validation.h"
 #include "rainbow.h"
-#include "neopixel_bitbang.h"
+#include "neopixel.h"
 
 static nrf_dfu_observer_t m_user_observer; //<! Observer callback set by the user.
 static volatile bool m_flash_write_done;

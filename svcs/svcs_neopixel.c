@@ -51,7 +51,7 @@ void pwm_handler(nrf_drv_pwm_evt_type_t event_type) {
 
 #include "nrf_sdm.h"
 
-SVCALL(PIXELS_SVCS_NEOPIXEL_SHOW, void, svcs_neopixelShow_SVC(uint32_t* colors, int count));
+//SVCALL(PIXELS_SVCS_NEOPIXEL_SHOW, void, svcs_neopixelShow_SVC(uint32_t* colors, int count));
 
 #endif //defined(PIXELS_BOOTLOADER) || defined(PIXELS_FIRMWARE_DEBUG)
 
@@ -152,5 +152,5 @@ void svcs_neopixelSetHighestLED(uint32_t color) {
 }
 
 #ifdef PIXELS_BOOTLOADER
-NRF_SVC_FUNCTION_REGISTER(PIXELS_SVCS_NEOPIXEL_SHOW, neopixelShow_instance, svcs_neopixelShow);
+//NRF_SVC_FUNCTION_REGISTER(PIXELS_SVCS_NEOPIXEL_SHOW, neopixelShow_instance, svcs_neopixelShow);
 #endif

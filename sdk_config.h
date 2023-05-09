@@ -1811,7 +1811,7 @@ extern char g_advertised_name[]; // We use this global variable to dynamically s
 
 // </e>
 
-#define NRF_LOG_BACKEND_UART_ENABLED 1
+#define NRF_LOG_BACKEND_UART_ENABLED 0
 
 #define NRF_LOG_BACKEND_UART_TX_PIN 20
  

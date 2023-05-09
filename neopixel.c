@@ -1,4 +1,4 @@
-#include "neopixel_bitbang.h"
+#include "neopixel.h"
 #include "svcs/svcs_neopixel.h"
 #include "svcs/svcs_board_config.h"
 #include "svcs/svcs_a2d.h"

@@ -62,7 +62,7 @@
 #include "nrf_delay.h"
 #include "nrf_gpio.h"
 #include "nrf_power.h"
-#include "neopixel_bitbang.h"
+#include "neopixel.h"
 #include "rainbow.h"
 #include "battery.h"
 #include "svcs/svcs_a2d.h"

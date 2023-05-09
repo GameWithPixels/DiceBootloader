@@ -51,16 +51,16 @@ SRC_FILES += \
   $(SDK_ROOT)/components/libraries/crypto/nrf_crypto_hash.c \
   $(SDK_ROOT)/components/libraries/crypto/nrf_crypto_init.c \
   $(SDK_ROOT)/components/libraries/crypto/nrf_crypto_shared.c \
+  $(SDK_ROOT)/components/ble/common/ble_srv_common.c \
   $(PROJ_DIR)/dfu_public_key.c \
   $(PROJ_DIR)/main.c \
-  $(SDK_ROOT)/components/ble/common/ble_srv_common.c \
   $(PROJ_DIR)/custom_bootloader.c \
-  $(PROJ_DIR)/neopixel_bitbang.c \
+  $(PROJ_DIR)/neopixel.c \
+  $(PROJ_DIR)/rainbow.c \
+  $(PROJ_DIR)/battery.c \
   $(PROJ_DIR)/svcs/svcs_a2d.c \
   $(PROJ_DIR)/svcs/svcs_board_config.c \
   $(PROJ_DIR)/svcs/svcs_neopixel.c \
-  $(PROJ_DIR)/rainbow.c \
-  $(PROJ_DIR)/battery.c \
   $(SDK_ROOT)/components/libraries/bootloader/nrf_bootloader_app_start.c \
   $(SDK_ROOT)/components/libraries/bootloader/nrf_bootloader_app_start_final.c \
   $(SDK_ROOT)/components/libraries/bootloader/nrf_bootloader_dfu_timers.c \
