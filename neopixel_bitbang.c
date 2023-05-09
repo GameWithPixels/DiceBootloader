@@ -73,6 +73,35 @@ void SetBinary(int16_t value) {
     svcs_neopixelShow(colors, 16);
 }
 
+void BlinkHighestLED(uint32_t color) {
+    if (getBatteryState() != BatteryState_VeryLow) {
+        powerOn();
+        if (getBatteryState() == BatteryState_Low) {
+            // Clamp intensity
+            uint8_t r = GET_R(color);
+            if (r > LOW_BATT_LED_INTENSITY) {
+                r = LOW_BATT_LED_INTENSITY;
+            }
+            uint8_t g = GET_G(color);
+            if (g > LOW_BATT_LED_INTENSITY) {
+                g = LOW_BATT_LED_INTENSITY;
+            }
+            uint8_t b = GET_B(color);
+            if (b > LOW_BATT_LED_INTENSITY) {
+                b = LOW_BATT_LED_INTENSITY;
+            }
+            color = TO_COLOR(r,g,b);
+        }
+        for (int i = 0; i < 5; ++i) {
+            svcs_neopixelSetHighestLED(color);
+            nrf_delay_ms(50);
+            svcs_neopixelSetHighestLED(0);
+            nrf_delay_ms(10);
+        }
+        powerOff();
+    }
+}
+
 void ClearLEDs() {
     powerOff();
 }

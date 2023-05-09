@@ -61,6 +61,7 @@
 #include "nrf_bootloader_info.h"
 #include "nrf_delay.h"
 #include "nrf_gpio.h"
+#include "nrf_power.h"
 #include "neopixel_bitbang.h"
 #include "rainbow.h"
 #include "battery.h"
@@ -141,8 +142,37 @@ int main(void)
     svcs_a2dInit();
     svcs_boardInit(); 
     svcs_neopixelInit();
-
     batteryInit();
+
+    // Display reset reason bits
+    uint32_t resetReas = nrf_power_resetreas_get();
+    nrf_power_resetreas_clear(0xFFFFFFFF);
+    if (resetReas != 0) {
+        // RESET PIN -> GREEN
+        if ((resetReas & (1 << 0)) != 0) {
+            BlinkHighestLED(0x000400);
+        }
+        // WATCHDOG -> RED
+        if ((resetReas & (1 << 1)) != 0) {
+            BlinkHighestLED(0x040000);
+        }
+        // SYSTEM REQUEST -> BLUE
+        if ((resetReas & (1 << 2)) != 0) {
+            BlinkHighestLED(0x000004);
+        }
+        // LOCKUP -> YELLOW
+        if ((resetReas & (1 << 3)) != 0) {
+            BlinkHighestLED(0x040400);
+        }
+        // Wake from SYSTEM OFF / GPIO -> CYAN
+        if ((resetReas & (1 << 16)) != 0) {
+            BlinkHighestLED(0x000404);
+        }
+        // Debug -> PURPLE
+        if ((resetReas & (1 << 18)) != 0) {
+            BlinkHighestLED(0x040004);
+        }
+    }
 
     uint32_t ret_val;
 
