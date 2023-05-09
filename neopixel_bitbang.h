@@ -13,6 +13,7 @@ extern "C" {
 #endif
 //void setDebugLEDs(uint32_t* colors, int count);
 void SetHighestLED(uint32_t color);
+void SetBinary(int16_t value);
 void ClearLEDs();
 #ifdef __cplusplus
 }

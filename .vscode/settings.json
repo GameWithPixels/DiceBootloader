@@ -27,5 +27,5 @@
         "type_traits": "c"
     },
     "arduino.defaultBaudRate": 230400,
-    "cortex-debug.variableUseNaturalFormat": false,
+    "cortex-debug.variableUseNaturalFormat": true,
 }

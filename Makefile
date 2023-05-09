@@ -60,6 +60,7 @@ SRC_FILES += \
   $(PROJ_DIR)/svcs/svcs_board_config.c \
   $(PROJ_DIR)/svcs/svcs_neopixel.c \
   $(PROJ_DIR)/rainbow.c \
+  $(PROJ_DIR)/battery.c \
   $(SDK_ROOT)/components/libraries/bootloader/nrf_bootloader_app_start.c \
   $(SDK_ROOT)/components/libraries/bootloader/nrf_bootloader_app_start_final.c \
   $(SDK_ROOT)/components/libraries/bootloader/nrf_bootloader_dfu_timers.c \

@@ -63,6 +63,7 @@
 #include "nrf_gpio.h"
 #include "neopixel_bitbang.h"
 #include "rainbow.h"
+#include "battery.h"
 #include "svcs/svcs_a2d.h"
 #include "svcs/svcs_board_config.h"
 #include "svcs/svcs_neopixel.h"
@@ -133,9 +134,15 @@ int main(void)
     // (it's better to have it enabled, but the chip doesn't *need* to have it enabled).
     // Without the DC-DC regulator enabled, the softdevice would cause a brownout reset while advertising.
     NRF_POWER->DCDCEN = 1;
+
+    // Need to wait about 50ms for VBat sense voltage to reach equilibrium after power-on
+    nrf_delay_ms(50);
+
     svcs_a2dInit();
     svcs_boardInit(); 
     svcs_neopixelInit();
+
+    batteryInit();
 
     uint32_t ret_val;
 

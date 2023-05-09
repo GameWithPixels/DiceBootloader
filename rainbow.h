@@ -4,6 +4,9 @@
 #include <stdint.h>
 
 // Helper function to generate a color
+#define GET_R(color) ((color & 0xff0000) >> 16)
+#define GET_G(color) ((color & 0x00ff00) >> 8)
+#define GET_B(color) ((color & 0x0000ff))
 #define TO_COLOR(red, green, blue) ((uint32_t)((red) << 16) | (uint32_t)((green) << 8) | (uint32_t)(blue))
 #define BL_LED_INTENSITY 8
 
