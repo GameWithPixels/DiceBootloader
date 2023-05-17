@@ -7,8 +7,8 @@
 
 
 static enum BatteryState currentBatteryState = BatteryState_Ok;
-#define BATTERY_LOW_MV      3300
-#define BATTERY_VERY_LOW_MV 3000
+#define BATTERY_LOW_MV      3500
+#define BATTERY_VERY_LOW_MV 3200
 
 void batteryInit() {
     // Measure VBat!
