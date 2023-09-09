@@ -134,24 +134,13 @@ int main(void)
     // Enable internal DC-DC regulator. This seems to make the softdevice happier, although I have no clue why
     // (it's better to have it enabled, but the chip doesn't *need* to have it enabled).
     // Without the DC-DC regulator enabled, the softdevice would cause a brownout reset while advertising.
+    NRF_POWER->DCDCEN = 1;
 
     // Need to wait about 50ms for VBat sense voltage to reach equilibrium after power-on
     nrf_delay_ms(50);
 
     svcs_a2dInit();
     svcs_boardInit(); 
-
-    enum BoardModel model = (enum BoardModel)svcs_getBoard()->model;
-    switch (model) {
-        case D6BoardV4:
-        case PD6BoardV3:
-            // Turn off DCDC for these two models
-            break;
-        default:
-            // Everybody else, turn it on!
-            NRF_POWER->DCDCEN = 1;
-            break;
-    }
 
     svcs_neopixelInit();
     batteryInit();
