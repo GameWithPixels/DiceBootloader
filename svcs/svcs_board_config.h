@@ -17,6 +17,8 @@ enum BoardModel
     D8BoardV2,
     D6BoardV6,
     PD6BoardV5,
+    D6BoardV9,
+    D00BoardV1,
 };
 
 struct Board_t
