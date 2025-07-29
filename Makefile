@@ -1,22 +1,20 @@
-PROJECT_NAME     := secure_bootloader_ble_s112_pca10040e
-TARGETS          := nrf52810_xxaa_s112
-OUTPUT_DIRECTORY := _build
-PROJ_DIR := .
-#SDK_VER = 17
-
 # SDK 17 path
+SDK_VER = 17
 SDK_ROOT := C:/nRF5_SDK
 
 # SoftDevice image filename and path
 # Download latest SoftDevice here: https://www.nordicsemi.com/Products/Development-software/s112/download
 # but do not update the SDK header files!
-#SOFTDEVICE_HEX_FILE := s112_nrf52_7.0.1_softdevice.hex
-#SOFTDEVICE_HEX_FILE := s112_nrf52_7.2.0_softdevice.hex
+SOFTDEVICE_IDENTIFIER := S112
 SOFTDEVICE_HEX_FILE := s112_nrf52_7.3.0_softdevice.hex
+SOFTDEVICE_HEX_PATHNAME := $(SDK_ROOT)/components/softdevice/$(SOFTDEVICE_IDENTIFIER)/hex/$(SOFTDEVICE_HEX_FILE)
 
-SOFTDEVICE_HEX_PATH := $(SDK_ROOT)/components/softdevice/s112/hex/$(SOFTDEVICE_HEX_FILE)
+IMAGE_NAME := nrf52810_xxaa_$(SOFTDEVICE_IDENTIFIER)
+TARGETS := $(IMAGE_NAME)
+OUTPUT_DIRECTORY := _build
+PROJ_DIR := .
 
-$(OUTPUT_DIRECTORY)/nrf52810_xxaa_s112.out: \
+$(OUTPUT_DIRECTORY)/$(TARGETS).out: \
   LINKER_SCRIPT := secure_bootloader_gcc_nrf52.ld
 
 
@@ -134,7 +132,7 @@ INC_FOLDERS += \
   $(SDK_ROOT)/components/libraries/bootloader/dfu \
   $(SDK_ROOT)/components/ble/common \
   $(SDK_ROOT)/components/libraries/delay \
-  $(SDK_ROOT)/components/softdevice/s112/headers/nrf52 \
+  $(SDK_ROOT)/components/softdevice/$(SOFTDEVICE_IDENTIFIER)/headers/nrf52 \
   $(SDK_ROOT)/components/libraries/svc \
   $(SDK_ROOT)/components/libraries/stack_info \
   $(SDK_ROOT)/components/libraries/crypto/backend/nrf_hw \
@@ -142,7 +140,7 @@ INC_FOLDERS += \
   $(SDK_ROOT)/external/nrf_oberon \
   $(SDK_ROOT)/components/libraries/strerror \
   $(SDK_ROOT)/components/libraries/crypto/backend/mbedtls \
-  $(SDK_ROOT)/components/softdevice/s112/headers \
+  $(SDK_ROOT)/components/softdevice/$(SOFTDEVICE_IDENTIFIER)/headers \
   $(SDK_ROOT)/components/boards \
   $(SDK_ROOT)/components/libraries/crypto/backend/cc310 \
   $(SDK_ROOT)/components/libraries/bootloader \
@@ -187,7 +185,7 @@ CFLAGS += -DNRFX_COREDEP_DELAY_US_LOOP_CYCLES=3
 CFLAGS += -DNRF_DFU_SETTINGS_VERSION=2
 CFLAGS += -DNRF_SD_BLE_API_VERSION=7
 CFLAGS += -DNRF_DFU_SVCI_ENABLED
-CFLAGS += -DS112
+CFLAGS += -D$(SOFTDEVICE_IDENTIFIER)
 CFLAGS += -DSOFTDEVICE_PRESENT
 CFLAGS += -DSVC_INTERFACE_CALL_AS_NORMAL_FUNCTION
 CFLAGS += -DuECC_ENABLE_VLI_API=0
@@ -227,7 +225,7 @@ ASMFLAGS += -DNRF_DFU_SVCI_ENABLED
 ASMFLAGS += -DNRFX_COREDEP_DELAY_US_LOOP_CYCLES=3
 ASMFLAGS += -DNRF_DFU_SETTINGS_VERSION=2
 ASMFLAGS += -DNRF_SD_BLE_API_VERSION=7
-ASMFLAGS += -DS112
+ASMFLAGS += -D$(SOFTDEVICE_IDENTIFIER)
 ASMFLAGS += -DSOFTDEVICE_PRESENT
 ASMFLAGS += -DSVC_INTERFACE_CALL_AS_NORMAL_FUNCTION
 ASMFLAGS += -DuECC_ENABLE_VLI_API=0
@@ -247,10 +245,10 @@ LDFLAGS += -Wl,--gc-sections
 # use newlib in nano version
 LDFLAGS += --specs=nano.specs
 
-nrf52810_xxaa_s112: CFLAGS += -D__HEAP_SIZE=0
-nrf52810_xxaa_s112: CFLAGS += -D__STACK_SIZE=2048
-nrf52810_xxaa_s112: ASMFLAGS += -D__HEAP_SIZE=0
-nrf52810_xxaa_s112: ASMFLAGS += -D__STACK_SIZE=2048
+$(IMAGE_NAME): CFLAGS += -D__HEAP_SIZE=0
+$(IMAGE_NAME): CFLAGS += -D__STACK_SIZE=2048
+$(IMAGE_NAME): ASMFLAGS += -D__HEAP_SIZE=0
+$(IMAGE_NAME): ASMFLAGS += -D__STACK_SIZE=2048
 
 # Add standard libraries at the very end of the linker input, after all objects
 # that may need symbols provided by these libraries.
@@ -260,12 +258,12 @@ LIB_FILES += -lc -lnosys -lm
 .PHONY: default help
 
 # Default target = first one defined
-default: nrf52810_xxaa_s112
+default: $(IMAGE_NAME)
 
 # Print all targets that can be built
 help:
 	@echo following targets are available:
-	@echo		nrf52810_xxaa_s112
+	@echo		$(TARGETS)
 	@echo		flash_softdevice
 	@echo		sdk_config - starting external tool for editing sdk_config.h
 	@echo		flash      - flashing binary
@@ -281,14 +279,14 @@ $(foreach target, $(TARGETS), $(call define_target, $(target)))
 
 # Flash the program
 flash: default
-	@echo Flashing: $(OUTPUT_DIRECTORY)/nrf52810_xxaa_s112.hex
-	nrfjprog -f nrf52 --program $(OUTPUT_DIRECTORY)/nrf52810_xxaa_s112.hex --sectorerase
+	@echo Flashing: $(OUTPUT_DIRECTORY)/$(IMAGE_NAME).hex
+	nrfjprog -f nrf52 --program $(OUTPUT_DIRECTORY)/$(IMAGE_NAME).hex --sectorerase
 	nrfjprog -f nrf52 --reset
 
 # Flash softdevice
 flash_softdevice:
 	@echo ==== Flashing: $(SOFTDEVICE_HEX_FILE) ====
-	nrfjprog -f nrf52 --program $(SOFTDEVICE_HEX_PATH) --sectorerase
+	nrfjprog -f nrf52 --program $(SOFTDEVICE_HEX_PATHNAME) --sectorerase
 	nrfjprog -f nrf52 --reset
 
 erase:
