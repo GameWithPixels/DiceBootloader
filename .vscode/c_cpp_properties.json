@@ -31,7 +31,10 @@
             "defines": [
                 "_DEBUG",
                 "UNICODE",
-                "_UNICODE"
+                "_UNICODE",
+                "PIXELS_BOOTLOADER",
+                "PIXELS_BOARD_USEA2D",
+                "PIXELS_BOARD_D20V17"
             ],
             "intelliSenseMode": "${default}",
             "browse": {

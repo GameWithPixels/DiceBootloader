@@ -9,14 +9,13 @@ SOFTDEVICE_IDENTIFIER := S112
 SOFTDEVICE_HEX_FILE := s112_nrf52_7.3.0_softdevice.hex
 SOFTDEVICE_HEX_PATHNAME := $(SDK_ROOT)/components/softdevice/$(SOFTDEVICE_IDENTIFIER)/hex/$(SOFTDEVICE_HEX_FILE)
 
-IMAGE_NAME := nrf52810_xxaa_$(SOFTDEVICE_IDENTIFIER)
-TARGETS := $(IMAGE_NAME)
-OUTPUT_DIRECTORY := _build
+IMAGE_NAME = bootloader_$(SOFTDEVICE_IDENTIFIER)_$(BOARD_IDENTIFIER)
+TARGET_NAME = bootloader
+
+OUTPUT_DIRECTORY = _build
 PROJ_DIR := .
 
-$(OUTPUT_DIRECTORY)/$(TARGETS).out: \
-  LINKER_SCRIPT := secure_bootloader_gcc_nrf52.ld
-
+LINKER_SCRIPT := secure_bootloader_gcc_nrf52.ld
 
 # Source files common to all targets
 SRC_FILES += \
@@ -236,6 +235,8 @@ ASMFLAGS += -DuECC_VLI_NATIVE_LITTLE_ENDIAN=1
 # ASMFLAGS += -DNRF_DFU_DEBUG_VERSION
 # ASMFLAGS += -DDEBUG_NRF
 
+CFLAGS += -DPIXELS_BOARD_$(BOARD_IDENTIFIER)
+
 # Linker flags
 LDFLAGS += $(OPT)
 LDFLAGS += -mthumb -mabi=aapcs -L$(SDK_ROOT)/modules/nrfx/mdk -T$(LINKER_SCRIPT)
@@ -245,40 +246,46 @@ LDFLAGS += -Wl,--gc-sections
 # use newlib in nano version
 LDFLAGS += --specs=nano.specs
 
-$(IMAGE_NAME): CFLAGS += -D__HEAP_SIZE=0
-$(IMAGE_NAME): CFLAGS += -D__STACK_SIZE=2048
-$(IMAGE_NAME): ASMFLAGS += -D__HEAP_SIZE=0
-$(IMAGE_NAME): ASMFLAGS += -D__STACK_SIZE=2048
+$(all_board_targets): CFLAGS += -D__HEAP_SIZE=0
+$(all_board_targets): CFLAGS += -D__STACK_SIZE=2048
+$(all_board_targets): ASMFLAGS += -D__HEAP_SIZE=0
+$(all_board_targets): ASMFLAGS += -D__STACK_SIZE=2048
 
 # Add standard libraries at the very end of the linker input, after all objects
 # that may need symbols provided by these libraries.
 LIB_FILES += -lc -lnosys -lm
 
 
-.PHONY: default help
+TEMPLATE_PATH := $(SDK_ROOT)/components/toolchain/gcc
 
-# Default target = first one defined
-default: $(IMAGE_NAME)
+.PHONY: all_boards all_board_targets
+
+define define_board_target
+  bootloader_$(SOFTDEVICE_IDENTIFIER)_$(1): BOARD_IDENTIFIER = $(1)
+  all_board_targets += bootloader_$(SOFTDEVICE_IDENTIFIER)_$(1)
+endef
+
+include board_models.inc
+
+$(foreach board,$(ALL_BOARDS), $(eval $(call define_board_target,$(board))))
+
+TARGETS = $(all_board_targets)
+
+include $(TEMPLATE_PATH)/Makefile.common
+
+$(foreach target, $(TARGETS), $(call define_target, $(target)))
+
+.PHONY: help flash flash_softdevice erase
 
 # Print all targets that can be built
 help:
 	@echo following targets are available:
 	@echo		$(TARGETS)
 	@echo		flash_softdevice
-	@echo		sdk_config - starting external tool for editing sdk_config.h
 	@echo		flash      - flashing binary
 
-TEMPLATE_PATH := $(SDK_ROOT)/components/toolchain/gcc
-
- 
-include $(TEMPLATE_PATH)/Makefile.common
-
-$(foreach target, $(TARGETS), $(call define_target, $(target)))
-
-.PHONY: flash flash_softdevice erase
-
 # Flash the program
-flash: default
+flash:
 	@echo Flashing: $(OUTPUT_DIRECTORY)/$(IMAGE_NAME).hex
 	nrfjprog -f nrf52 --program $(OUTPUT_DIRECTORY)/$(IMAGE_NAME).hex --sectorerase
 	nrfjprog -f nrf52 --reset
@@ -296,3 +303,39 @@ reflash:  erase  flash  flash_softdevice
 
 reset:
 	nrfjprog -f nrf52 --reset
+
+all_boards: $(all_board_targets)
+
+.PHONY: flash_d20 flash_d12 flash_d8 flash_d6 flash_d00
+
+flash_d20: BOARD_IDENTIFIER=D20V17
+flash_d20: flash
+
+flash_d12: BOARD_IDENTIFIER=D20V17
+flash_d12: flash
+
+flash_d8: BOARD_IDENTIFIER=D8V8
+flash_d8: flash
+
+flash_d6: BOARD_IDENTIFIER=D6V10
+flash_d6: flash
+
+flash_d00: BOARD_IDENTIFIER=D00V2
+flash_d00: flash
+
+.PHONY: reflash_d20 reflash_d12 reflash_d8 reflash_d6 reflash_d00
+
+reflash_d20: BOARD_IDENTIFIER=D20V17
+reflash_d20: reflash
+
+reflash_d12: BOARD_IDENTIFIER=D20V17
+reflash_d12: reflash
+
+reflash_d8: BOARD_IDENTIFIER=D8V8
+reflash_d8: reflash
+
+reflash_d6: BOARD_IDENTIFIER=D6V10
+reflash_d6: reflash
+
+reflash_d00: BOARD_IDENTIFIER=D00V2
+reflash_d00: reflash

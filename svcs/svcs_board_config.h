@@ -6,21 +6,24 @@
 
 #pragma pack(push, 1)
 
-enum BoardModel
-{
-    Unsupported = 0,
-    D20BoardV15,
-    D6BoardV4,
-    D12BoardV2,
-    PD6BoardV3,
-    D10BoardV2,
-    D8BoardV2,
-    D6BoardV6,
-    PD6BoardV5,
-    D6BoardV9,
-    D00BoardV1,
-    PyreV1
-};
+#define Board_Unsupported   0
+#define Board_Unknown       1
+#define Board_D20V15        2
+#define Board_D6V4          3
+#define Board_D12V2         4
+#define Board_PD6V3         5
+#define Board_D10V2         6
+#define Board_D8V2          7
+#define Board_D6V6          8
+#define Board_PD6V5         9
+#define Board_D6V9          10
+#define Board_D00V1         11
+#define Board_PyreV1        12
+#define Board_D20V17        13
+#define Board_D12V7         14
+#define Board_D00V2         15
+#define Board_D8V8          16
+#define Board_D6V10         17
 
 struct Board_t
 {
@@ -43,6 +46,12 @@ struct Board_t
     uint8_t vbatSensePin;
     uint8_t ntcSensePin;
     uint8_t progPin;
+
+    // A2D Selection Pin
+    uint8_t ntcOptSelectPin;
+
+    // Shipping Mode Pin
+    uint8_t shippingModePin;
 
     // LED config
     uint8_t ledCount;
