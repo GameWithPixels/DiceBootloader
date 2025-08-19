@@ -2,13 +2,8 @@
 #include "svcs.h"
 #include "nrf_delay.h"
 #include "nrf_gpio.h"
-#define BOARD_DETECT_DRIVE_PIN 25
 
 #if defined(PIXELS_BOOTLOADER) || defined(PIXELS_FIRMWARE_DEBUG)
-
-#include "nrf_saadc.h"
-#include "nrf_log.h"
-#include "svcs_a2d.h"
 
 #if defined(PIXELS_BOOTLOADER)
 #include "nrf_svc_function.h"
@@ -16,6 +11,11 @@
 
 #if defined(PIXELS_BOARD_USEA2D)
 
+#include "nrf_saadc.h"
+#include "nrf_log.h"
+#include "svcs_a2d.h"
+
+#define BOARD_DETECT_DRIVE_PIN 25
 #define BOARD_DETECT_SENSE_PIN NRF_SAADC_INPUT_AIN4
 #define BOARD_DETECT_RESISTOR 100000 // 100k
 
@@ -397,7 +397,7 @@ void svcs_boardInit() {
 
 #include "nrf_sdm.h"
 
-//SVCALL(PIXELS_SVCS_GETBOARD, const struct Board_t*, svcs_getBoard_SVC());
+SVCALL(PIXELS_SVCS_GETBOARD, const struct Board_t*, svcs_getBoard_SVC());
 
 #endif //defined(PIXELS_BOOTLOADER) || defined(PIXELS_FIRMWARE_DEBUG)
 
@@ -423,5 +423,5 @@ const struct Board_t* svcs_getBoard() {
 }
 
 #ifdef PIXELS_BOOTLOADER
-//NRF_SVC_FUNCTION_REGISTER(PIXELS_SVCS_GETBOARD, getBoard_instance, svcs_getBoard);
+NRF_SVC_FUNCTION_REGISTER(PIXELS_SVCS_GETBOARD, getBoard_instance, svcs_getBoard);
 #endif

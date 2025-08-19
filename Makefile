@@ -10,7 +10,7 @@ SOFTDEVICE_HEX_FILE := s112_nrf52_7.3.0_softdevice.hex
 SOFTDEVICE_HEX_PATHNAME := $(SDK_ROOT)/components/softdevice/$(SOFTDEVICE_IDENTIFIER)/hex/$(SOFTDEVICE_HEX_FILE)
 
 IMAGE_NAME = bootloader_$(SOFTDEVICE_IDENTIFIER)_$(BOARD_IDENTIFIER)
-TARGET_NAME = bootloader
+TARGET = $(IMAGE_NAME)
 
 OUTPUT_DIRECTORY = _build
 PROJ_DIR := .
@@ -177,7 +177,7 @@ CFLAGS += -DBLE_STACK_SUPPORT_REQD
 CFLAGS += -DBOARD_CUSTOM
 #CFLAGS += -DCONFIG_GPIO_AS_PINRESET
 #CFLAGS += -DDEVELOP_IN_NRF52832
-CFLAGS += -DFLOAT_ABI_SOFT
+#CFLAGS += -DFLOAT_ABI_SOFT
 CFLAGS += -DNRF52810_XXAA
 CFLAGS += -DNRF52_PAN_74
 CFLAGS += -DNRFX_COREDEP_DELAY_US_LOOP_CYCLES=3
@@ -195,8 +195,8 @@ CFLAGS += -DuECC_VLI_NATIVE_LITTLE_ENDIAN=1
 CFLAGS += -mcpu=cortex-m4
 CFLAGS += -mthumb -mabi=aapcs
 CFLAGS += -Wall -Werror
-CFLAGS += -mfloat-abi=soft
 CFLAGS += -DPIXELS_BOOTLOADER
+# CFLAGS += -mfloat-abi=soft
 # CFLAGS += -DDEBUG_NRF
 # CFLAGS += -DNRF_DFU_DEBUG_VERSION
 
@@ -212,12 +212,12 @@ CXXFLAGS += $(OPT)
 ASMFLAGS += -g3
 ASMFLAGS += -mcpu=cortex-m4
 ASMFLAGS += -mthumb -mabi=aapcs
-ASMFLAGS += -mfloat-abi=soft
+#ASMFLAGS += -mfloat-abi=soft
 ASMFLAGS += -DBLE_STACK_SUPPORT_REQD
 ASMFLAGS += -DBOARD_CUSTOM
 ASMFLAGS += -DCONFIG_GPIO_AS_PINRESET
 #ASMFLAGS += -DDEVELOP_IN_NRF52832
-ASMFLAGS += -DFLOAT_ABI_SOFT
+#ASMFLAGS += -DFLOAT_ABI_SOFT
 ASMFLAGS += -DNRF52810_XXAA
 ASMFLAGS += -DNRF52_PAN_74
 ASMFLAGS += -DNRF_DFU_SVCI_ENABLED
@@ -255,9 +255,6 @@ $(all_board_targets): ASMFLAGS += -D__STACK_SIZE=2048
 # that may need symbols provided by these libraries.
 LIB_FILES += -lc -lnosys -lm
 
-
-TEMPLATE_PATH := $(SDK_ROOT)/components/toolchain/gcc
-
 .PHONY: all_boards all_board_targets
 
 define define_board_target
@@ -271,6 +268,7 @@ $(foreach board,$(ALL_BOARDS), $(eval $(call define_board_target,$(board))))
 
 TARGETS = $(all_board_targets)
 
+TEMPLATE_PATH := $(SDK_ROOT)/components/toolchain/gcc
 include $(TEMPLATE_PATH)/Makefile.common
 
 $(foreach target, $(TARGETS), $(call define_target, $(target)))
@@ -284,8 +282,10 @@ help:
 	@echo		flash_softdevice
 	@echo		flash      - flashing binary
 
+bootloader: $(TARGET)
+
 # Flash the program
-flash:
+flash: bootloader
 	@echo Flashing: $(OUTPUT_DIRECTORY)/$(IMAGE_NAME).hex
 	nrfjprog -f nrf52 --program $(OUTPUT_DIRECTORY)/$(IMAGE_NAME).hex --sectorerase
 	nrfjprog -f nrf52 --reset
