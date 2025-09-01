@@ -14,7 +14,7 @@
 // change this for your settings
 #define NEOPIXEL_INSTANCE 0
 
-#define MAX_COUNT 22		// Max LED count so far is 21 (on PD6)
+#define MAX_COUNT 25		// Max LED count so far is 24 (on D6V10)
 
 #define NEOPIXEL_BYTES 24
 #define CLOCK NRF_PWM_CLK_16MHz
