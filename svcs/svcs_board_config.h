@@ -24,11 +24,16 @@
 #define Board_D00V2         15
 #define Board_D8V8          16
 #define Board_D6V10         17
+#define Board_D20V18        18
+#define Board_D12V8         19
+#define Board_D00V3         20
+#define Board_D8V9          21
+#define Board_D6V11         22
 
 struct Board_t
 {
     // Measuring board type
-    uint16_t boardResistorValueInKOhms;
+    uint16_t boardResistorValueIn100Ohms;
 
     // Talking to LEDs
     uint8_t ledDataPin;

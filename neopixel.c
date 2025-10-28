@@ -5,31 +5,18 @@
 #include "compiler_abstraction.h"
 #include "nrf_delay.h"
 #include "nrf_gpio.h"
+#include "nrf_drv_gpiote.h"
 #include "battery.h"
 #include "rainbow.h"
 
 #define LOW_BATT_LED_INTENSITY 1
 
 void powerOn() {
-    // Get board
-    const struct Board_t* board = svcs_getBoard();
-
-    // Make sure pins are setup correctly, just in case
-    nrf_gpio_cfg_output(board->ledPowerPin);
-
-    if (nrf_gpio_pin_out_read(board->ledPowerPin) == 0) {
-        // Turn power on
-        nrf_gpio_pin_set(board->ledPowerPin);
-        // Wait for LEDs to start up
-        nrf_delay_ms(5);
-    }
+    svcs_neopixelPowerOn();
 }
 
 void powerOff() {
-    // Get board
-    const struct Board_t* board = svcs_getBoard();
-    // Turn power off
-    nrf_gpio_pin_clear(board->ledPowerPin);
+    svcs_neopixelPowerOff();
 }
 
 // void setDebugLEDs(uint32_t* colors, int count) {
@@ -105,3 +92,4 @@ void BlinkHighestLED(uint32_t color) {
 void ClearLEDs() {
     powerOff();
 }
+

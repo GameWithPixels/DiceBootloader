@@ -312,220 +312,12 @@
 #ifndef NRF_CRYPTO_BACKEND_CC310_ENABLED
 #define NRF_CRYPTO_BACKEND_CC310_ENABLED 0
 #endif
-// <q> NRF_CRYPTO_BACKEND_CC310_AES_CBC_ENABLED  - Enable the AES CBC mode using CC310.
- 
-
-#ifndef NRF_CRYPTO_BACKEND_CC310_AES_CBC_ENABLED
-#define NRF_CRYPTO_BACKEND_CC310_AES_CBC_ENABLED 1
-#endif
-
-// <q> NRF_CRYPTO_BACKEND_CC310_AES_CTR_ENABLED  - Enable the AES CTR mode using CC310.
- 
-
-#ifndef NRF_CRYPTO_BACKEND_CC310_AES_CTR_ENABLED
-#define NRF_CRYPTO_BACKEND_CC310_AES_CTR_ENABLED 1
-#endif
-
-// <q> NRF_CRYPTO_BACKEND_CC310_AES_ECB_ENABLED  - Enable the AES ECB mode using CC310.
- 
-
-#ifndef NRF_CRYPTO_BACKEND_CC310_AES_ECB_ENABLED
-#define NRF_CRYPTO_BACKEND_CC310_AES_ECB_ENABLED 1
-#endif
-
-// <q> NRF_CRYPTO_BACKEND_CC310_AES_CBC_MAC_ENABLED  - Enable the AES CBC_MAC mode using CC310.
- 
-
-#ifndef NRF_CRYPTO_BACKEND_CC310_AES_CBC_MAC_ENABLED
-#define NRF_CRYPTO_BACKEND_CC310_AES_CBC_MAC_ENABLED 1
-#endif
-
-// <q> NRF_CRYPTO_BACKEND_CC310_AES_CMAC_ENABLED  - Enable the AES CMAC mode using CC310.
- 
-
-#ifndef NRF_CRYPTO_BACKEND_CC310_AES_CMAC_ENABLED
-#define NRF_CRYPTO_BACKEND_CC310_AES_CMAC_ENABLED 1
-#endif
-
-// <q> NRF_CRYPTO_BACKEND_CC310_AES_CCM_ENABLED  - Enable the AES CCM mode using CC310.
- 
-
-#ifndef NRF_CRYPTO_BACKEND_CC310_AES_CCM_ENABLED
-#define NRF_CRYPTO_BACKEND_CC310_AES_CCM_ENABLED 1
-#endif
-
-// <q> NRF_CRYPTO_BACKEND_CC310_AES_CCM_STAR_ENABLED  - Enable the AES CCM* mode using CC310.
- 
-
-#ifndef NRF_CRYPTO_BACKEND_CC310_AES_CCM_STAR_ENABLED
-#define NRF_CRYPTO_BACKEND_CC310_AES_CCM_STAR_ENABLED 1
-#endif
-
-// <q> NRF_CRYPTO_BACKEND_CC310_CHACHA_POLY_ENABLED  - Enable the CHACHA-POLY mode using CC310.
- 
-
-#ifndef NRF_CRYPTO_BACKEND_CC310_CHACHA_POLY_ENABLED
-#define NRF_CRYPTO_BACKEND_CC310_CHACHA_POLY_ENABLED 1
-#endif
-
-// <q> NRF_CRYPTO_BACKEND_CC310_ECC_SECP160R1_ENABLED  - Enable the secp160r1 elliptic curve support using CC310.
- 
-
-#ifndef NRF_CRYPTO_BACKEND_CC310_ECC_SECP160R1_ENABLED
-#define NRF_CRYPTO_BACKEND_CC310_ECC_SECP160R1_ENABLED 1
-#endif
-
-// <q> NRF_CRYPTO_BACKEND_CC310_ECC_SECP160R2_ENABLED  - Enable the secp160r2 elliptic curve support using CC310.
- 
-
-#ifndef NRF_CRYPTO_BACKEND_CC310_ECC_SECP160R2_ENABLED
-#define NRF_CRYPTO_BACKEND_CC310_ECC_SECP160R2_ENABLED 1
-#endif
-
-// <q> NRF_CRYPTO_BACKEND_CC310_ECC_SECP192R1_ENABLED  - Enable the secp192r1 elliptic curve support using CC310.
- 
-
-#ifndef NRF_CRYPTO_BACKEND_CC310_ECC_SECP192R1_ENABLED
-#define NRF_CRYPTO_BACKEND_CC310_ECC_SECP192R1_ENABLED 1
-#endif
-
-// <q> NRF_CRYPTO_BACKEND_CC310_ECC_SECP224R1_ENABLED  - Enable the secp224r1 elliptic curve support using CC310.
- 
-
-#ifndef NRF_CRYPTO_BACKEND_CC310_ECC_SECP224R1_ENABLED
-#define NRF_CRYPTO_BACKEND_CC310_ECC_SECP224R1_ENABLED 1
-#endif
-
-// <q> NRF_CRYPTO_BACKEND_CC310_ECC_SECP256R1_ENABLED  - Enable the secp256r1 elliptic curve support using CC310.
- 
-
-#ifndef NRF_CRYPTO_BACKEND_CC310_ECC_SECP256R1_ENABLED
-#define NRF_CRYPTO_BACKEND_CC310_ECC_SECP256R1_ENABLED 1
-#endif
-
-// <q> NRF_CRYPTO_BACKEND_CC310_ECC_SECP384R1_ENABLED  - Enable the secp384r1 elliptic curve support using CC310.
- 
-
-#ifndef NRF_CRYPTO_BACKEND_CC310_ECC_SECP384R1_ENABLED
-#define NRF_CRYPTO_BACKEND_CC310_ECC_SECP384R1_ENABLED 1
-#endif
-
-// <q> NRF_CRYPTO_BACKEND_CC310_ECC_SECP521R1_ENABLED  - Enable the secp521r1 elliptic curve support using CC310.
- 
-
-#ifndef NRF_CRYPTO_BACKEND_CC310_ECC_SECP521R1_ENABLED
-#define NRF_CRYPTO_BACKEND_CC310_ECC_SECP521R1_ENABLED 1
-#endif
-
-// <q> NRF_CRYPTO_BACKEND_CC310_ECC_SECP160K1_ENABLED  - Enable the secp160k1 elliptic curve support using CC310.
- 
-
-#ifndef NRF_CRYPTO_BACKEND_CC310_ECC_SECP160K1_ENABLED
-#define NRF_CRYPTO_BACKEND_CC310_ECC_SECP160K1_ENABLED 1
-#endif
-
-// <q> NRF_CRYPTO_BACKEND_CC310_ECC_SECP192K1_ENABLED  - Enable the secp192k1 elliptic curve support using CC310.
- 
-
-#ifndef NRF_CRYPTO_BACKEND_CC310_ECC_SECP192K1_ENABLED
-#define NRF_CRYPTO_BACKEND_CC310_ECC_SECP192K1_ENABLED 1
-#endif
-
-// <q> NRF_CRYPTO_BACKEND_CC310_ECC_SECP224K1_ENABLED  - Enable the secp224k1 elliptic curve support using CC310.
- 
-
-#ifndef NRF_CRYPTO_BACKEND_CC310_ECC_SECP224K1_ENABLED
-#define NRF_CRYPTO_BACKEND_CC310_ECC_SECP224K1_ENABLED 1
-#endif
-
-// <q> NRF_CRYPTO_BACKEND_CC310_ECC_SECP256K1_ENABLED  - Enable the secp256k1 elliptic curve support using CC310.
- 
-
-#ifndef NRF_CRYPTO_BACKEND_CC310_ECC_SECP256K1_ENABLED
-#define NRF_CRYPTO_BACKEND_CC310_ECC_SECP256K1_ENABLED 1
-#endif
-
-// <q> NRF_CRYPTO_BACKEND_CC310_ECC_CURVE25519_ENABLED  - Enable the Curve25519 curve support using CC310.
- 
-
-#ifndef NRF_CRYPTO_BACKEND_CC310_ECC_CURVE25519_ENABLED
-#define NRF_CRYPTO_BACKEND_CC310_ECC_CURVE25519_ENABLED 1
-#endif
-
-// <q> NRF_CRYPTO_BACKEND_CC310_ECC_ED25519_ENABLED  - Enable the Ed25519 curve support using CC310.
- 
-
-#ifndef NRF_CRYPTO_BACKEND_CC310_ECC_ED25519_ENABLED
-#define NRF_CRYPTO_BACKEND_CC310_ECC_ED25519_ENABLED 1
-#endif
-
-// <q> NRF_CRYPTO_BACKEND_CC310_HASH_SHA256_ENABLED  - CC310 SHA-256 hash functionality.
- 
-
-// <i> CC310 backend implementation for hardware-accelerated SHA-256.
-
-#ifndef NRF_CRYPTO_BACKEND_CC310_HASH_SHA256_ENABLED
-#define NRF_CRYPTO_BACKEND_CC310_HASH_SHA256_ENABLED 1
-#endif
-
-// <q> NRF_CRYPTO_BACKEND_CC310_HASH_SHA512_ENABLED  - CC310 SHA-512 hash functionality
- 
-
-// <i> CC310 backend implementation for SHA-512 (in software).
-
-#ifndef NRF_CRYPTO_BACKEND_CC310_HASH_SHA512_ENABLED
-#define NRF_CRYPTO_BACKEND_CC310_HASH_SHA512_ENABLED 1
-#endif
-
-// <q> NRF_CRYPTO_BACKEND_CC310_HMAC_SHA256_ENABLED  - CC310 HMAC using SHA-256
- 
-
-// <i> CC310 backend implementation for HMAC using hardware-accelerated SHA-256.
-
-#ifndef NRF_CRYPTO_BACKEND_CC310_HMAC_SHA256_ENABLED
-#define NRF_CRYPTO_BACKEND_CC310_HMAC_SHA256_ENABLED 1
-#endif
-
-// <q> NRF_CRYPTO_BACKEND_CC310_HMAC_SHA512_ENABLED  - CC310 HMAC using SHA-512
- 
-
-// <i> CC310 backend implementation for HMAC using SHA-512 (in software).
-
-#ifndef NRF_CRYPTO_BACKEND_CC310_HMAC_SHA512_ENABLED
-#define NRF_CRYPTO_BACKEND_CC310_HMAC_SHA512_ENABLED 1
-#endif
-
-// <q> NRF_CRYPTO_BACKEND_CC310_RNG_ENABLED  - Enable RNG support using CC310.
- 
-
-#ifndef NRF_CRYPTO_BACKEND_CC310_RNG_ENABLED
-#define NRF_CRYPTO_BACKEND_CC310_RNG_ENABLED 1
-#endif
-
-// <q> NRF_CRYPTO_BACKEND_CC310_INTERRUPTS_ENABLED  - Enable Interrupts while support using CC310.
- 
-
-// <i> Select a library version compatible with the configuration. When interrupts are disable, a version named _noint must be used
-
-#ifndef NRF_CRYPTO_BACKEND_CC310_INTERRUPTS_ENABLED
-#define NRF_CRYPTO_BACKEND_CC310_INTERRUPTS_ENABLED 1
-#endif
-
-// </e>
 
 // <e> NRF_CRYPTO_BACKEND_CIFRA_ENABLED - Enable the Cifra backend.
 //==========================================================
 #ifndef NRF_CRYPTO_BACKEND_CIFRA_ENABLED
 #define NRF_CRYPTO_BACKEND_CIFRA_ENABLED 0
 #endif
-// <q> NRF_CRYPTO_BACKEND_CIFRA_AES_EAX_ENABLED  - Enable the AES EAX mode using Cifra.
- 
-
-#ifndef NRF_CRYPTO_BACKEND_CIFRA_AES_EAX_ENABLED
-#define NRF_CRYPTO_BACKEND_CIFRA_AES_EAX_ENABLED 1
-#endif
-
-// </e>
 
 // <e> NRF_CRYPTO_BACKEND_MBEDTLS_ENABLED - Enable the mbed TLS backend.
 //==========================================================
@@ -820,104 +612,13 @@
 #ifndef NRF_CRYPTO_BACKEND_OBERON_ENABLED
 #define NRF_CRYPTO_BACKEND_OBERON_ENABLED 0
 #endif
-// <q> NRF_CRYPTO_BACKEND_OBERON_CHACHA_POLY_ENABLED  - Enable the CHACHA-POLY mode using Oberon.
- 
-
-#ifndef NRF_CRYPTO_BACKEND_OBERON_CHACHA_POLY_ENABLED
-#define NRF_CRYPTO_BACKEND_OBERON_CHACHA_POLY_ENABLED 0
-#endif
-
-// <q> NRF_CRYPTO_BACKEND_OBERON_ECC_SECP256R1_ENABLED  - Enable secp256r1 curve
- 
-
-// <i> Enable this setting if you need secp256r1 curve support using Oberon library
-
-#ifndef NRF_CRYPTO_BACKEND_OBERON_ECC_SECP256R1_ENABLED
-#define NRF_CRYPTO_BACKEND_OBERON_ECC_SECP256R1_ENABLED 1
-#endif
-
-// <q> NRF_CRYPTO_BACKEND_OBERON_ECC_CURVE25519_ENABLED  - Enable Curve25519 ECDH
- 
-
-// <i> Enable this setting if you need Curve25519 ECDH support using Oberon library
-
-#ifndef NRF_CRYPTO_BACKEND_OBERON_ECC_CURVE25519_ENABLED
-#define NRF_CRYPTO_BACKEND_OBERON_ECC_CURVE25519_ENABLED 0
-#endif
-
-// <q> NRF_CRYPTO_BACKEND_OBERON_ECC_ED25519_ENABLED  - Enable Ed25519 signature scheme
- 
-
-// <i> Enable this setting if you need Ed25519 support using Oberon library
-
-#ifndef NRF_CRYPTO_BACKEND_OBERON_ECC_ED25519_ENABLED
-#define NRF_CRYPTO_BACKEND_OBERON_ECC_ED25519_ENABLED 0
-#endif
-
-// <q> NRF_CRYPTO_BACKEND_OBERON_HASH_SHA256_ENABLED  - Oberon SHA-256 hash functionality
- 
-
-// <i> Oberon backend implementation for SHA-256.
-
-#ifndef NRF_CRYPTO_BACKEND_OBERON_HASH_SHA256_ENABLED
-#define NRF_CRYPTO_BACKEND_OBERON_HASH_SHA256_ENABLED 1
-#endif
-
-// <q> NRF_CRYPTO_BACKEND_OBERON_HASH_SHA512_ENABLED  - Oberon SHA-512 hash functionality
- 
-
-// <i> Oberon backend implementation for SHA-512.
-
-#ifndef NRF_CRYPTO_BACKEND_OBERON_HASH_SHA512_ENABLED
-#define NRF_CRYPTO_BACKEND_OBERON_HASH_SHA512_ENABLED 0
-#endif
-
-// <q> NRF_CRYPTO_BACKEND_OBERON_HMAC_SHA256_ENABLED  - Oberon HMAC using SHA-256
- 
-
-// <i> Oberon backend implementation for HMAC using SHA-256.
-
-#ifndef NRF_CRYPTO_BACKEND_OBERON_HMAC_SHA256_ENABLED
-#define NRF_CRYPTO_BACKEND_OBERON_HMAC_SHA256_ENABLED 0
-#endif
-
-// <q> NRF_CRYPTO_BACKEND_OBERON_HMAC_SHA512_ENABLED  - Oberon HMAC using SHA-512
- 
-
-// <i> Oberon backend implementation for HMAC using SHA-512.
-
-#ifndef NRF_CRYPTO_BACKEND_OBERON_HMAC_SHA512_ENABLED
-#define NRF_CRYPTO_BACKEND_OBERON_HMAC_SHA512_ENABLED 0
-#endif
-
-// </e>
-
-// <e> NRF_CRYPTO_BACKEND_OPTIGA_ENABLED - Enable the nrf_crypto Optiga Trust X backend.
 
 // <i> Enables the nrf_crypto backend for Optiga Trust X devices.
 //==========================================================
 #ifndef NRF_CRYPTO_BACKEND_OPTIGA_ENABLED
 #define NRF_CRYPTO_BACKEND_OPTIGA_ENABLED 0
 #endif
-// <q> NRF_CRYPTO_BACKEND_OPTIGA_RNG_ENABLED  - Optiga backend support for RNG
- 
 
-// <i> The Optiga backend provide external chip RNG.
-
-#ifndef NRF_CRYPTO_BACKEND_OPTIGA_RNG_ENABLED
-#define NRF_CRYPTO_BACKEND_OPTIGA_RNG_ENABLED 0
-#endif
-
-// <q> NRF_CRYPTO_BACKEND_OPTIGA_ECC_SECP256R1_ENABLED  - Optiga backend support for ECC secp256r1
- 
-
-// <i> The Optiga backend provide external chip ECC using secp256r1.
-
-#ifndef NRF_CRYPTO_BACKEND_OPTIGA_ECC_SECP256R1_ENABLED
-#define NRF_CRYPTO_BACKEND_OPTIGA_ECC_SECP256R1_ENABLED 1
-#endif
-
-// </e>
 
 // <q> NRF_CRYPTO_CURVE25519_BIG_ENDIAN_ENABLED  - Big-endian byte order in raw Curve25519 data
  
@@ -1362,6 +1063,21 @@ extern char g_advertised_name[]; // We use this global variable to dynamically s
 // <7=> 7 
 #define NRFX_PWM_DEFAULT_CONFIG_IRQ_PRIORITY 6
 
+
+//==========================================================
+// GPIOTE Library
+//==========================================================
+
+// <e> GPIOTE_ENABLED - nrf_drv_gpiote - GPIOTE peripheral driver - legacy layer
+#define GPIOTE_ENABLED 1
+
+// <o> GPIOTE_CONFIG_NUM_OF_LOW_POWER_EVENTS - Number of lower power input pins 
+#define GPIOTE_CONFIG_NUM_OF_LOW_POWER_EVENTS 4
+
+// <o> GPIOTE_CONFIG_IRQ_PRIORITY  - Interrupt priority
+// <i> Priorities 0,2 (nRF51) and 0,1,4,5 (nRF52) are reserved for SoftDevice
+// <0=> 0 (highest) -> 7 (lowest)
+#define GPIOTE_CONFIG_IRQ_PRIORITY 6
 
 // </h> 
 //==========================================================

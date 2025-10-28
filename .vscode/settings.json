@@ -1,5 +1,6 @@
 {
     "files.associations": {
+        "*.embeddedhtml": "html",
         "boards.h": "c",
         "custom_board.h": "c",
         "nrf_delay.h": "c",
@@ -24,7 +25,9 @@
         "xutility": "c",
         "algorithm": "c",
         "initializer_list": "c",
-        "type_traits": "c"
+        "type_traits": "c",
+        "nrf_drv_pwm.h": "c",
+        "nrf_gpio.h": "c"
     },
     "arduino.defaultBaudRate": 230400,
     "cortex-debug.variableUseNaturalFormat": true,

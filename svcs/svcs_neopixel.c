@@ -1,9 +1,11 @@
 #include "svcs_neopixel.h"
 #include "nrf_drv_pwm.h"
 #include "nrf_delay.h"
-#include "svcs/svcs_board_config.h"
+#include "svcs_board_config.h"
 #include "nrf_log.h"
 #include "svcs.h"
+#include "nrf_gpio.h"
+#include "nrf_drv_gpiote.h"
 
 #if defined(PIXELS_BOOTLOADER)
 #include "nrf_svc_function.h"
@@ -47,11 +49,119 @@ void pwm_handler(nrf_drv_pwm_evt_type_t event_type) {
     // Nothing
 }
 
+void svcs_neopixelPowerOn() {
+    // Get board
+    const struct Board_t* board = svcs_getBoard();
+
+    // Make sure pins are setup correctly, just in case
+    nrf_gpio_cfg_output(board->ledPowerPin);
+
+    if (nrf_gpio_pin_out_read(board->ledPowerPin) == 0) {
+        // Turn power on
+        nrf_gpio_pin_set(board->ledPowerPin);
+        // Wait for LEDs to start up
+        nrf_delay_ms(5);
+    }
+}
+
+void svcs_neopixelPowerOff() {
+    // Get board
+    const struct Board_t* board = svcs_getBoard();
+    // Turn power off
+    nrf_gpio_pin_clear(board->ledPowerPin);
+}
+
+void svcs_neopixelSetHighestLED(uint32_t color) {
+    const struct Board_t* board = svcs_getBoard();
+    for (int i = 0; i < board->ledCount; i++) {
+        writeColor(0, i);
+    }
+    writeColor(color, board->debugLedIndex);
+
+    // write the termination word
+    pwm_sequence_values[board->ledCount * NEOPIXEL_BYTES] = 0x8000;
+
+    nrf_pwm_sequence_t const seq0 =
+        {
+            .values = {
+                .p_common = pwm_sequence_values,
+            },
+            .length = (uint16_t)(NEOPIXEL_BYTES * numLEDs + 1),
+            .repeats = 0,
+            .end_delay = 0};
+
+    (void)nrf_drv_pwm_simple_playback(&m_pwm0, &seq0, 1, NRF_DRV_PWM_FLAG_STOP);
+}
+
+
+static bool ledReturnDetected;
+void ledReturnDetector(nrfx_gpiote_pin_t pin, nrf_gpiote_polarity_t action) {
+    ledReturnDetected = true;
+}
+
+
+bool svcs_neopixelTestLEDReturn() {
+    
+    // test LED return
+    svcs_neopixelPowerOn();
+
+    // Now that supposedly LEDs are powered on, set interrupt pin
+    // to detect the output of the last LED toggling
+
+    // Initialize on separate line to make sure it happens every call, as this is a static variable
+    ledReturnDetected = false;
+
+    nrf_drv_gpiote_in_config_t in_config;
+    in_config.is_watcher = false;
+    in_config.hi_accuracy = true;
+    in_config.pull = NRF_GPIO_PIN_PULLUP;
+    in_config.sense = NRF_GPIOTE_POLARITY_TOGGLE;
+    in_config.skip_gpio_setup = false;
+
+    uint32_t ledReturnPin = svcs_getBoard()->ledReturnPin;
+
+    ret_code_t err_code = nrf_drv_gpiote_in_init(ledReturnPin, &in_config, ledReturnDetector);
+    APP_ERROR_CHECK(err_code);
+
+    nrf_drv_gpiote_in_event_enable(ledReturnPin, true);
+
+    // Have LEDs test the return
+    // Forces LEDs to forward color values past the last one so we can detect it
+    for (int i = 0; i < numLEDs+1; i++) {
+        writeColor(0, i);
+    }
+    // write the termination word
+    pwm_sequence_values[(numLEDs+1) * NEOPIXEL_BYTES] = 0x8000;
+
+    nrf_pwm_sequence_t const seq0 =
+        {
+            .values = {
+                .p_common = pwm_sequence_values,
+            },
+            .length = (uint16_t)(NEOPIXEL_BYTES * (numLEDs + 1) + 1),
+            .repeats = 0,
+            .end_delay = 0};
+
+    (void)nrf_drv_pwm_simple_playback(&m_pwm0, &seq0, 1, NRF_DRV_PWM_FLAG_STOP);
+
+    // Wait (synchronously because we not fancy like that)
+    nrf_delay_ms(5);
+
+    // Turn off the interrupt handler
+    nrfx_gpiote_in_uninit(ledReturnPin);    
+    nrf_gpio_cfg_default(ledReturnPin);
+
+    // Turn off LED power
+    svcs_neopixelPowerOff();
+
+    return ledReturnDetected;
+}
+
 #else
 
 #include "nrf_sdm.h"
 
-//SVCALL(PIXELS_SVCS_NEOPIXEL_SHOW, void, svcs_neopixelShow_SVC(uint32_t* colors, int count));
+SVCALL(PIXELS_SVCS_NEOPIXEL_SHOW, void, svcs_neopixelShow_SVC(uint32_t* colors, int count));
 
 #endif //defined(PIXELS_BOOTLOADER) || defined(PIXELS_FIRMWARE_DEBUG)
 
@@ -85,7 +195,7 @@ void svcs_neopixelInit() {
 
     NRF_LOG_DEBUG("Neopixel init");
 
-// #else
+#else
 //     // Set the vector table base address to the bootloader
 //     ret_code_t err_code = sd_softdevice_vector_table_base_set(BOOTLOADER_ADDRESS);
 //     APP_ERROR_CHECK(err_code);
@@ -97,6 +207,14 @@ void svcs_neopixelInit() {
 //     APP_ERROR_CHECK(err_code);
 #endif
 }
+
+void svcs_neopixelDeinit() {
+#if defined(PIXELS_BOOTLOADER) || defined(PIXELS_FIRMWARE_DEBUG)
+    nrf_drv_pwm_uninit(&m_pwm0);
+#else
+#endif
+}
+
 
 void svcs_neopixelShow(uint32_t* colors, int count) {
 #if defined(PIXELS_BOOTLOADER) || defined(PIXELS_FIRMWARE_DEBUG)
@@ -121,7 +239,7 @@ void svcs_neopixelShow(uint32_t* colors, int count) {
     ret_code_t err_code = sd_softdevice_vector_table_base_set(BOOTLOADER_ADDRESS);
     APP_ERROR_CHECK(err_code);
 
-    svcs_neopixelShow_SVC(colors);
+    svcs_neopixelShow_SVC(colors, count);
 
     // Set the vector table base address back to main application.
     err_code = sd_softdevice_vector_table_base_set(CODE_START);
@@ -129,28 +247,6 @@ void svcs_neopixelShow(uint32_t* colors, int count) {
 #endif
 }
 
-void svcs_neopixelSetHighestLED(uint32_t color) {
-    const struct Board_t* board = svcs_getBoard();
-    for (int i = 0; i < board->ledCount; i++) {
-        writeColor(0, i);
-    }
-    writeColor(color, board->debugLedIndex);
-
-    // write the termination word
-    pwm_sequence_values[board->ledCount * NEOPIXEL_BYTES] = 0x8000;
-
-    nrf_pwm_sequence_t const seq0 =
-        {
-            .values = {
-                .p_common = pwm_sequence_values,
-            },
-            .length = (uint16_t)(NEOPIXEL_BYTES * numLEDs + 1),
-            .repeats = 0,
-            .end_delay = 0};
-
-    (void)nrf_drv_pwm_simple_playback(&m_pwm0, &seq0, 1, NRF_DRV_PWM_FLAG_STOP);
-}
-
 #ifdef PIXELS_BOOTLOADER
-//NRF_SVC_FUNCTION_REGISTER(PIXELS_SVCS_NEOPIXEL_SHOW, neopixelShow_instance, svcs_neopixelShow);
+NRF_SVC_FUNCTION_REGISTER(PIXELS_SVCS_NEOPIXEL_SHOW, neopixelShow_instance, svcs_neopixelShow);
 #endif

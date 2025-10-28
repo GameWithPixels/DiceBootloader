@@ -9,7 +9,7 @@ SOFTDEVICE_IDENTIFIER := S112
 SOFTDEVICE_HEX_FILE := s112_nrf52_7.3.0_softdevice.hex
 SOFTDEVICE_HEX_PATHNAME := $(SDK_ROOT)/components/softdevice/$(SOFTDEVICE_IDENTIFIER)/hex/$(SOFTDEVICE_HEX_FILE)
 
-IMAGE_NAME = bootloader_$(SOFTDEVICE_IDENTIFIER)_$(BOARD_IDENTIFIER)
+IMAGE_NAME = bootloader_$(SOFTDEVICE_IDENTIFIER)
 TARGET = $(IMAGE_NAME)
 
 OUTPUT_DIRECTORY = _build
@@ -89,6 +89,8 @@ SRC_FILES += \
   $(SDK_ROOT)/components/libraries/memobj/nrf_memobj.c \
 	$(SDK_ROOT)/modules/nrfx/drivers/src/nrfx_saadc.c \
 	$(SDK_ROOT)/modules/nrfx/drivers/src/nrfx_pwm.c \
+	$(SDK_ROOT)/modules/nrfx/drivers/src/nrfx_gpiote.c \
+
   # $(SDK_ROOT)/components/libraries/crypto/backend/oberon/oberon_backend_chacha_poly_aead.c \
   # $(SDK_ROOT)/components/libraries/crypto/backend/oberon/oberon_backend_ecc.c \
   # $(SDK_ROOT)/components/libraries/crypto/backend/oberon/oberon_backend_ecdh.c \
@@ -169,7 +171,7 @@ LIB_FILES += \
 # Optimization flags
 OPT = -Os -g3
 # Uncomment the line below to enable link time optimization
-OPT += -flto
+#OPT += -flto
 
 # C flags common to all targets
 CFLAGS += $(OPT)
@@ -196,8 +198,10 @@ CFLAGS += -mcpu=cortex-m4
 CFLAGS += -mthumb -mabi=aapcs
 CFLAGS += -Wall -Werror
 CFLAGS += -DPIXELS_BOOTLOADER
+CFLAGS += -DSWI_DISABLE0
+
 # CFLAGS += -mfloat-abi=soft
-# CFLAGS += -DDEBUG_NRF
+CFLAGS += -DNDEBUG
 # CFLAGS += -DNRF_DFU_DEBUG_VERSION
 
 
@@ -232,10 +236,9 @@ ASMFLAGS += -DuECC_OPTIMIZATION_LEVEL=3
 ASMFLAGS += -DuECC_SQUARE_FUNC=0
 ASMFLAGS += -DuECC_SUPPORT_COMPRESSED_POINT=0
 ASMFLAGS += -DuECC_VLI_NATIVE_LITTLE_ENDIAN=1
+ASMFLAGS += -DSWI_DISABLE0
 # ASMFLAGS += -DNRF_DFU_DEBUG_VERSION
 # ASMFLAGS += -DDEBUG_NRF
-
-CFLAGS += -DPIXELS_BOARD_$(BOARD_IDENTIFIER)
 
 # Linker flags
 LDFLAGS += $(OPT)
@@ -246,27 +249,20 @@ LDFLAGS += -Wl,--gc-sections
 # use newlib in nano version
 LDFLAGS += --specs=nano.specs
 
-$(all_board_targets): CFLAGS += -D__HEAP_SIZE=0
-$(all_board_targets): CFLAGS += -D__STACK_SIZE=2048
-$(all_board_targets): ASMFLAGS += -D__HEAP_SIZE=0
-$(all_board_targets): ASMFLAGS += -D__STACK_SIZE=2048
+# Memory map
+LDFLAGS += -Wl,--cref
+
+CFLAGS += -D__HEAP_SIZE=0
+CFLAGS += -D__STACK_SIZE=2048
+ASMFLAGS += -D__HEAP_SIZE=0
+ASMFLAGS += -D__STACK_SIZE=2048
 
 # Add standard libraries at the very end of the linker input, after all objects
 # that may need symbols provided by these libraries.
 LIB_FILES += -lc -lnosys -lm
 
-.PHONY: all_boards all_board_targets
 
-define define_board_target
-  bootloader_$(SOFTDEVICE_IDENTIFIER)_$(1): BOARD_IDENTIFIER = $(1)
-  all_board_targets += bootloader_$(SOFTDEVICE_IDENTIFIER)_$(1)
-endef
-
-include board_models.inc
-
-$(foreach board,$(ALL_BOARDS), $(eval $(call define_board_target,$(board))))
-
-TARGETS = $(all_board_targets)
+TARGETS = $(TARGET)
 
 TEMPLATE_PATH := $(SDK_ROOT)/components/toolchain/gcc
 include $(TEMPLATE_PATH)/Makefile.common
@@ -304,38 +300,7 @@ reflash:  erase  flash  flash_softdevice
 reset:
 	nrfjprog -f nrf52 --reset
 
-all_boards: $(all_board_targets)
-
-.PHONY: flash_d20 flash_d12 flash_d8 flash_d6 flash_d00
-
-flash_d20: BOARD_IDENTIFIER=D20V17
-flash_d20: flash
-
-flash_d12: BOARD_IDENTIFIER=D20V17
-flash_d12: flash
-
-flash_d8: BOARD_IDENTIFIER=D8V8
-flash_d8: flash
-
-flash_d6: BOARD_IDENTIFIER=D6V10
-flash_d6: flash
-
-flash_d00: BOARD_IDENTIFIER=D00V2
-flash_d00: flash
-
-.PHONY: reflash_d20 reflash_d12 reflash_d8 reflash_d6 reflash_d00
-
-reflash_d20: BOARD_IDENTIFIER=D20V17
-reflash_d20: reflash
-
-reflash_d12: BOARD_IDENTIFIER=D20V17
-reflash_d12: reflash
-
-reflash_d8: BOARD_IDENTIFIER=D8V8
-reflash_d8: reflash
-
-reflash_d6: BOARD_IDENTIFIER=D6V10
-reflash_d6: reflash
-
-reflash_d00: BOARD_IDENTIFIER=D00V2
-reflash_d00: reflash
+.PHONY: bootloader_memory_map
+bootloader_memory_map: bootloader
+	@echo Generating elf file from linker output
+	$(OBJCOPY) -O elf32-littlearm $(OUTPUT_DIRECTORY)/$(IMAGE_NAME).out $(OUTPUT_DIRECTORY)/$(IMAGE_NAME).elf

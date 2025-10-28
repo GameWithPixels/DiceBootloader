@@ -47,7 +47,7 @@ int16_t a2d_readPin(nrf_saadc_input_t pin) {
 
 #include "nrf_sdm.h"
 
-//SVCALL(PIXELS_SVCS_A2D_READ_PIN_TIMES_1000, int32_t, svcs_a2dReadPinValueTimes1000_SVC(nrf_saadc_input_t pin));
+SVCALL(PIXELS_SVCS_A2D_READ_PIN_TIMES_1000, int32_t, svcs_a2dReadPinValueTimes1000_SVC(nrf_saadc_input_t pin));
 
 #endif //defined(PIXELS_BOOTLOADER) || defined(PIXELS_FIRMWARE_DEBUG)
 
@@ -102,5 +102,5 @@ int32_t svcs_a2dReadPinValueTimes1000(nrf_saadc_input_t pin) {
 }
 
 #ifdef PIXELS_BOOTLOADER
-//NRF_SVC_FUNCTION_REGISTER(PIXELS_SVCS_A2D_READ_PIN_TIMES_1000, a2dReadPinValueTimes1000_instance, svcs_a2dReadPinValueTimes1000);
+NRF_SVC_FUNCTION_REGISTER(PIXELS_SVCS_A2D_READ_PIN_TIMES_1000, a2dReadPinValueTimes1000_instance, svcs_a2dReadPinValueTimes1000);
 #endif

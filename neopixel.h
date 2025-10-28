@@ -6,7 +6,7 @@
 #ifndef NRF_NEOPIXEL_BITBANG_H__
 #define NRF_NEOPIXEL_BITBANG_H__
 
-#include <stdint.h>
+#include "stdint.h"
 
 #ifdef __cplusplus
 extern "C" {
