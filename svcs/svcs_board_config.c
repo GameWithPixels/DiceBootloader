@@ -40,6 +40,7 @@ static const struct Board_t unidentifiableBoards[] = {
         .ledCount = 20,
         .debugLedIndex = 14,
         .model = Board_D20V17,
+        .accelerometer = AccelerometerModel_KXTJ3,
         .name = "D20v17",
     },
     {
@@ -60,6 +61,7 @@ static const struct Board_t unidentifiableBoards[] = {
         .ledCount = 12,
         .debugLedIndex = 6,
         .model = Board_D12V7,
+        .accelerometer = AccelerometerModel_SC7A20H,
         .name = "D12v7",
     },
     {
@@ -80,6 +82,7 @@ static const struct Board_t unidentifiableBoards[] = {
         .ledCount = 19,
         .debugLedIndex = 18,
         .model = Board_D00V2,
+        .accelerometer = AccelerometerModel_SC7A20H,
         .name = "D00v2",
     },
     {
@@ -100,6 +103,7 @@ static const struct Board_t unidentifiableBoards[] = {
         .ledCount = 8,
         .debugLedIndex = 5,
         .model = Board_D8V8,
+        .accelerometer = AccelerometerModel_SC7A20H,
         .name = "D8v8",
     },
     {
@@ -120,6 +124,7 @@ static const struct Board_t unidentifiableBoards[] = {
         .ledCount = 24,
         .debugLedIndex = 20,
         .model = Board_D6V10,
+        .accelerometer = AccelerometerModel_SC7A20H,
         .name = "D6v10",
     },
     {
@@ -138,6 +143,7 @@ static const struct Board_t unidentifiableBoards[] = {
         .ledCount = 21,
         .debugLedIndex = 20,
         .model = Board_PD6V3,
+        .accelerometer = AccelerometerModel_KXTJ3,
         .name = "PD6v3-BadR9",
     },
 };
@@ -162,6 +168,7 @@ static const struct Board_t identifiableBoards[] = {
         .ledCount = 19,
         .debugLedIndex = 18,
         .model = Board_D00V3,
+        .accelerometer = AccelerometerModel_SC7A20H,
         .name = "D00V3",
     },
     {
@@ -180,6 +187,7 @@ static const struct Board_t identifiableBoards[] = {
         .ledCount = 8,
         .debugLedIndex = 5,
         .model = Board_D8V9,
+        .accelerometer = AccelerometerModel_SC7A20H,
         .name = "D8V9",
     },
     {
@@ -198,6 +206,7 @@ static const struct Board_t identifiableBoards[] = {
         .ledCount = 24,
         .debugLedIndex = 20,
         .model = Board_D6V11,
+        .accelerometer = AccelerometerModel_SC7A20H,
         .name = "D6V11",
     },
     {
@@ -216,6 +225,7 @@ static const struct Board_t identifiableBoards[] = {
         .ledCount = 6,
         .debugLedIndex = 3,
         .model = Board_D6V6,
+        .accelerometer = AccelerometerModel_KXTJ3,
         .name = "D6v6",
     },
     {
@@ -234,6 +244,7 @@ static const struct Board_t identifiableBoards[] = {
         .ledCount = 21,
         .debugLedIndex = 20,
         .model = Board_PD6V5,
+        .accelerometer = AccelerometerModel_KXTJ3,
         .name = "PD6v5",
     },
     {
@@ -252,6 +263,7 @@ static const struct Board_t identifiableBoards[] = {
         .ledCount = 20,
         .debugLedIndex = 14,
         .model = Board_D20V15,
+        .accelerometer = AccelerometerModel_KXTJ3,
         .name = "D20v15",
     },
     {
@@ -270,6 +282,7 @@ static const struct Board_t identifiableBoards[] = {
         .ledCount = 6,
         .debugLedIndex = 3,
         .model = Board_D6V4,
+        .accelerometer = AccelerometerModel_KXTJ3,
         .name = "D6v2",
     },
     {
@@ -288,6 +301,7 @@ static const struct Board_t identifiableBoards[] = {
         .ledCount = 21,
         .debugLedIndex = 20,
         .model = Board_PD6V3,
+        .accelerometer = AccelerometerModel_KXTJ3,
         .name = "PD6v3",
     },
     {
@@ -306,6 +320,7 @@ static const struct Board_t identifiableBoards[] = {
         .ledCount = 12,
         .debugLedIndex = 6,
         .model = Board_D12V2,
+        .accelerometer = AccelerometerModel_KXTJ3,
         .name = "D12v2",
     },
     {
@@ -324,6 +339,7 @@ static const struct Board_t identifiableBoards[] = {
         .ledCount = 10,
         .debugLedIndex = 9,
         .model = Board_D10V2,
+        .accelerometer = AccelerometerModel_KXTJ3,
         .name = "D10v2",
     },
     {
@@ -342,6 +358,7 @@ static const struct Board_t identifiableBoards[] = {
         .ledCount = 20,
         .debugLedIndex = 14,
         .model = Board_D20V18,
+        .accelerometer = AccelerometerModel_SC7A20H,
         .name = "D20v18",
     },
     {
@@ -360,6 +377,7 @@ static const struct Board_t identifiableBoards[] = {
         .ledCount = 8,
         .debugLedIndex = 4,
         .model = Board_D8V2,
+        .accelerometer = AccelerometerModel_KXTJ3,
         .name = "D8v2",
     },
     {
@@ -378,6 +396,7 @@ static const struct Board_t identifiableBoards[] = {
         .ledCount = 12,
         .debugLedIndex = 6,
         .model = Board_D12V8,
+        .accelerometer = AccelerometerModel_SC7A20H,
         .name = "D12v8",
     },
 };
@@ -418,6 +437,9 @@ void svcs_boardInit() {
         if (nrf_gpio_pin_present_check(currentBoard->ledDataPin) &&
             nrf_gpio_pin_present_check(currentBoard->ledPowerPin) &&
             nrf_gpio_pin_present_check(currentBoard->ledReturnPin)) {
+
+            NRF_LOG_INFO("Testing %d: %s!", i, unidentifiableBoards[i].name);
+
             svcs_neopixelInit();
 
             // Run the test

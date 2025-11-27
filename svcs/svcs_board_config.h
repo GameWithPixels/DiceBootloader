@@ -30,6 +30,9 @@
 #define Board_D8V9          21
 #define Board_D6V11         22
 
+#define AccelerometerModel_KXTJ3    0
+#define AccelerometerModel_SC7A20H  1
+
 struct Board_t
 {
     // Measuring board type
@@ -64,6 +67,7 @@ struct Board_t
 
     // Board
     uint8_t model;
+    uint8_t accelerometer;
 
     // Name of the board
     const char* name;

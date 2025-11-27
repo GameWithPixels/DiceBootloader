@@ -96,6 +96,7 @@ void svcs_neopixelSetHighestLED(uint32_t color) {
 
 static bool ledReturnDetected;
 void ledReturnDetector(nrfx_gpiote_pin_t pin, nrf_gpiote_polarity_t action) {
+    NRF_LOG_INFO("BAAM!")
     ledReturnDetected = true;
 }
 
@@ -211,6 +212,9 @@ void svcs_neopixelInit() {
 void svcs_neopixelDeinit() {
 #if defined(PIXELS_BOOTLOADER) || defined(PIXELS_FIRMWARE_DEBUG)
     nrf_drv_pwm_uninit(&m_pwm0);
+    const struct Board_t* board = svcs_getBoard();
+    nrf_gpio_cfg_default(board->ledPowerPin);
+
 #else
 #endif
 }
