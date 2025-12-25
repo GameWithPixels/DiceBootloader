@@ -52,16 +52,15 @@ SRC_FILES += \
   $(PROJ_DIR)/dfu_public_key.c \
   $(PROJ_DIR)/main.c \
   $(PROJ_DIR)/custom_bootloader.c \
+  $(PROJ_DIR)/custom_bootloader_fw_activation.c \
+  $(PROJ_DIR)/custom_dfu_settings.c \
   $(PROJ_DIR)/neopixel.c \
-  $(PROJ_DIR)/rainbow.c \
-  $(PROJ_DIR)/battery.c \
-  $(PROJ_DIR)/svcs/svcs_a2d.c \
+  $(PROJ_DIR)/a2d.c \
+  $(PROJ_DIR)/board_config.c \
   $(PROJ_DIR)/svcs/svcs_board_config.c \
-  $(PROJ_DIR)/svcs/svcs_neopixel.c \
   $(SDK_ROOT)/components/libraries/bootloader/nrf_bootloader_app_start.c \
   $(SDK_ROOT)/components/libraries/bootloader/nrf_bootloader_app_start_final.c \
   $(SDK_ROOT)/components/libraries/bootloader/nrf_bootloader_dfu_timers.c \
-  $(SDK_ROOT)/components/libraries/bootloader/nrf_bootloader_fw_activation.c \
   $(SDK_ROOT)/components/libraries/bootloader/nrf_bootloader_info.c \
   $(SDK_ROOT)/components/libraries/bootloader/nrf_bootloader_wdt.c \
   $(SDK_ROOT)/external/nano-pb/pb_common.c \
@@ -74,7 +73,6 @@ SRC_FILES += \
   $(SDK_ROOT)/components/libraries/bootloader/dfu/nrf_dfu_handling_error.c \
   $(SDK_ROOT)/components/libraries/bootloader/dfu/nrf_dfu_mbr.c \
   $(SDK_ROOT)/components/libraries/bootloader/dfu/nrf_dfu_req_handler.c \
-  $(SDK_ROOT)/components/libraries/bootloader/dfu/nrf_dfu_settings.c \
   $(SDK_ROOT)/components/libraries/bootloader/dfu/nrf_dfu_settings_svci.c \
   $(SDK_ROOT)/components/libraries/bootloader/dfu/nrf_dfu_transport.c \
   $(SDK_ROOT)/components/libraries/bootloader/dfu/nrf_dfu_utils.c \
@@ -90,25 +88,21 @@ SRC_FILES += \
 	$(SDK_ROOT)/modules/nrfx/drivers/src/nrfx_saadc.c \
 	$(SDK_ROOT)/modules/nrfx/drivers/src/nrfx_pwm.c \
 	$(SDK_ROOT)/modules/nrfx/drivers/src/nrfx_gpiote.c \
+  $(SDK_ROOT)/external/micro-ecc/micro-ecc/uECC.c \
 
-  # $(SDK_ROOT)/components/libraries/crypto/backend/oberon/oberon_backend_chacha_poly_aead.c \
-  # $(SDK_ROOT)/components/libraries/crypto/backend/oberon/oberon_backend_ecc.c \
-  # $(SDK_ROOT)/components/libraries/crypto/backend/oberon/oberon_backend_ecdh.c \
-  # $(SDK_ROOT)/components/libraries/crypto/backend/oberon/oberon_backend_ecdsa.c \
-  # $(SDK_ROOT)/components/libraries/crypto/backend/oberon/oberon_backend_eddsa.c \
-  # $(SDK_ROOT)/components/libraries/crypto/backend/oberon/oberon_backend_hash.c \
-  # $(SDK_ROOT)/components/libraries/crypto/backend/oberon/oberon_backend_hmac.c \
-  # $(SDK_ROOT)/external/segger_rtt/SEGGER_RTT.c \
-  # $(SDK_ROOT)/external/segger_rtt/SEGGER_RTT_Syscalls_GCC.c \
-  # $(SDK_ROOT)/external/segger_rtt/SEGGER_RTT_printf.c \
-  # $(SDK_ROOT)/components/libraries/log/src/nrf_log_backend_rtt.c \
-  # $(SDK_ROOT)/components/libraries/log/src/nrf_log_backend_uart.c \
-  # $(SDK_ROOT)/components/libraries/log/src/nrf_log_backend_serial.c \
-  # $(SDK_ROOT)/components/libraries/log/src/nrf_log_default_backends.c \
-  # $(SDK_ROOT)/components/libraries/log/src/nrf_log_frontend.c \
-  # $(SDK_ROOT)/components/libraries/log/src/nrf_log_str_formatter.c \
-  # $(SDK_ROOT)/external/fprintf/nrf_fprintf.c \
-  # $(SDK_ROOT)/external/fprintf/nrf_fprintf_format.c \
+# # Debug
+# SRC_FILES += \
+# 	$(SDK_ROOT)/components/libraries/log/src/nrf_log_backend_uart.c \
+# 	$(SDK_ROOT)/components/libraries/log/src/nrf_log_backend_rtt.c \
+# 	$(SDK_ROOT)/components/libraries/log/src/nrf_log_backend_serial.c \
+# 	$(SDK_ROOT)/components/libraries/log/src/nrf_log_default_backends.c \
+# 	$(SDK_ROOT)/components/libraries/log/src/nrf_log_frontend.c \
+# 	$(SDK_ROOT)/components/libraries/log/src/nrf_log_str_formatter.c \
+# 	$(SDK_ROOT)/components/libraries/strerror/nrf_strerror.c \
+#   $(SDK_ROOT)/external/fprintf/nrf_fprintf.c \
+#   $(SDK_ROOT)/external/fprintf/nrf_fprintf_format.c \
+# 	$(SDK_ROOT)/integration/nrfx/legacy/nrf_drv_uart.c \
+# 	$(SDK_ROOT)/modules/nrfx/drivers/src/nrfx_uarte.c \
 
 # Include folders common to all targets
 INC_FOLDERS += \
@@ -165,13 +159,29 @@ INC_FOLDERS += \
   $(SDK_ROOT)/components/libraries/ringbuf \
 
 # Libraries common to all targets
-LIB_FILES += \
-  $(SDK_ROOT)/external/micro-ecc/nrf52nf_armgcc/armgcc/micro_ecc_lib_nrf52.a \
+# LIB_FILES += \
+#   $(SDK_ROOT)/external/micro-ecc/nrf52nf_armgcc/armgcc/micro_ecc_lib_nrf52.a \
 
 # Optimization flags
 OPT = -Os -g3
 # Uncomment the line below to enable link time optimization
-#OPT += -flto
+OPT += -flto
+
+uECCFLAGS = -DuECC_ENABLE_VLI_API=0
+uECCFLAGS += -DuECC_OPTIMIZATION_LEVEL=3
+uECCFLAGS += -DuECC_SQUARE_FUNC=0
+uECCFLAGS += -DuECC_SUPPORT_COMPRESSED_POINT=0
+uECCFLAGS += -DuECC_VLI_NATIVE_LITTLE_ENDIAN=1
+uECCFLAGS += -DuECC_SUPPORTS_secp160r1=0
+uECCFLAGS += -DuECC_SUPPORTS_secp192r1=0
+uECCFLAGS += -DuECC_SUPPORTS_secp224r1=0
+uECCFLAGS += -DuECC_SUPPORTS_secp256r1=1
+uECCFLAGS += -DuECC_SUPPORTS_secp256k1=0
+
+DEBUG_FLAGS = -DDEBUG
+DEBUG_FLAGS += -DDEBUG_NRF
+DEBUG_FLAGS += -DNRF_LOG_ENABLED=1
+
 
 # C flags common to all targets
 CFLAGS += $(OPT)
@@ -189,25 +199,26 @@ CFLAGS += -DNRF_DFU_SVCI_ENABLED
 CFLAGS += -D$(SOFTDEVICE_IDENTIFIER)
 CFLAGS += -DSOFTDEVICE_PRESENT
 CFLAGS += -DSVC_INTERFACE_CALL_AS_NORMAL_FUNCTION
-CFLAGS += -DuECC_ENABLE_VLI_API=0
-CFLAGS += -DuECC_OPTIMIZATION_LEVEL=3
-CFLAGS += -DuECC_SQUARE_FUNC=0
-CFLAGS += -DuECC_SUPPORT_COMPRESSED_POINT=0
-CFLAGS += -DuECC_VLI_NATIVE_LITTLE_ENDIAN=1
+CFLAGS += $(uECCFLAGS)
+# CFLAGS += -DuECC_ENABLE_VLI_API=0
+# CFLAGS += -DuECC_OPTIMIZATION_LEVEL=4
+# CFLAGS += -DuECC_SQUARE_FUNC=0
+# CFLAGS += -DuECC_SUPPORT_COMPRESSED_POINT=0
+# CFLAGS += -DuECC_VLI_NATIVE_LITTLE_ENDIAN=1
+
 CFLAGS += -mcpu=cortex-m4
 CFLAGS += -mthumb -mabi=aapcs
 CFLAGS += -Wall -Werror
 CFLAGS += -DPIXELS_BOOTLOADER
 CFLAGS += -DSWI_DISABLE0
 
-# CFLAGS += -mfloat-abi=soft
-CFLAGS += -DNDEBUG
-# CFLAGS += -DNRF_DFU_DEBUG_VERSION
+#CFLAGS += -DNDEBUG
+#CFLAGS += $(DEBUG_FLAGS)
 
 
 # keep every function in a separate section, this allows linker to discard unused ones
 CFLAGS += -ffunction-sections -fdata-sections -fno-strict-aliasing
-CFLAGS += -fno-builtin -fshort-enums -flto -Wno-unused-function
+CFLAGS += -fno-builtin -fshort-enums -Wno-unused-function
 
 # C++ flags common to all targets
 CXXFLAGS += $(OPT)
@@ -231,11 +242,12 @@ ASMFLAGS += -DNRF_SD_BLE_API_VERSION=7
 ASMFLAGS += -D$(SOFTDEVICE_IDENTIFIER)
 ASMFLAGS += -DSOFTDEVICE_PRESENT
 ASMFLAGS += -DSVC_INTERFACE_CALL_AS_NORMAL_FUNCTION
-ASMFLAGS += -DuECC_ENABLE_VLI_API=0
-ASMFLAGS += -DuECC_OPTIMIZATION_LEVEL=3
-ASMFLAGS += -DuECC_SQUARE_FUNC=0
-ASMFLAGS += -DuECC_SUPPORT_COMPRESSED_POINT=0
-ASMFLAGS += -DuECC_VLI_NATIVE_LITTLE_ENDIAN=1
+ASMFLAGS += $(uECCFLAGS)
+# ASMFLAGS += -DuECC_ENABLE_VLI_API=0
+# ASMFLAGS += -DuECC_OPTIMIZATION_LEVEL=3
+# ASMFLAGS += -DuECC_SQUARE_FUNC=0
+# ASMFLAGS += -DuECC_SUPPORT_COMPRESSED_POINT=0
+# ASMFLAGS += -DuECC_VLI_NATIVE_LITTLE_ENDIAN=1
 ASMFLAGS += -DSWI_DISABLE0
 # ASMFLAGS += -DNRF_DFU_DEBUG_VERSION
 # ASMFLAGS += -DDEBUG_NRF

@@ -49,7 +49,7 @@
 #include <stdint.h>
 #include "boards.h"
 #include "nrf_mbr.h"
-#include "custom_bootloader.h"
+#include "nrf_bootloader.h"
 #include "nrf_bootloader_app_start.h"
 #include "nrf_bootloader_dfu_timers.h"
 #include "nrf_dfu.h"
@@ -63,11 +63,8 @@
 #include "nrf_gpio.h"
 #include "nrf_power.h"
 #include "neopixel.h"
-#include "rainbow.h"
-#include "battery.h"
-#include "svcs/svcs_a2d.h"
-#include "svcs/svcs_board_config.h"
-#include "svcs/svcs_neopixel.h"
+#include "board_config.h"
+#include "neopixel.h"
 
 static void on_error(void)
 {
@@ -131,49 +128,9 @@ static void dfu_observer(nrf_dfu_evt_type_t evt_type)
 /**@brief Function for application main entry. */
 int main(void)
 {
-    // Enable internal DC-DC regulator. This seems to make the softdevice happier, although I have no clue why
-    // (it's better to have it enabled, but the chip doesn't *need* to have it enabled).
-    // Without the DC-DC regulator enabled, the softdevice would cause a brownout reset while advertising.
-    NRF_POWER->DCDCEN = 1;
+    boardInit(); 
 
-    // Need to wait about 50ms for VBat sense voltage to reach equilibrium after power-on
-    nrf_delay_ms(50);
-
-    svcs_a2dInit();
-    svcs_boardInit(); 
-
-    svcs_neopixelInit();
-    batteryInit();
-
-    // Display reset reason bits
-    uint32_t resetReas = nrf_power_resetreas_get();
-    nrf_power_resetreas_clear(0xFFFFFFFF);
-    if (resetReas != 0) {
-        // RESET PIN -> GREEN
-        if ((resetReas & (1 << 0)) != 0) {
-            BlinkHighestLED(0x000400);
-        }
-        // WATCHDOG -> RED
-        if ((resetReas & (1 << 1)) != 0) {
-            BlinkHighestLED(0x040000);
-        }
-        // SYSTEM REQUEST -> BLUE
-        if ((resetReas & (1 << 2)) != 0) {
-            BlinkHighestLED(0x000004);
-        }
-        // LOCKUP -> YELLOW
-        if ((resetReas & (1 << 3)) != 0) {
-            BlinkHighestLED(0x040400);
-        }
-        // Wake from SYSTEM OFF / GPIO -> CYAN
-        if ((resetReas & (1 << 16)) != 0) {
-            BlinkHighestLED(0x000404);
-        }
-        // Debug -> PURPLE
-        if ((resetReas & (1 << 18)) != 0) {
-            BlinkHighestLED(0x040004);
-        }
-    }
+    NeopixelInit();
 
     uint32_t ret_val;
 

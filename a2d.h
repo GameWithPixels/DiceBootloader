@@ -8,13 +8,7 @@
 #include <stdint.h>
 #include "nrf_saadc.h"
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-void svcs_a2dInit();
-int32_t svcs_a2dReadPinValueTimes1000(nrf_saadc_input_t pin);
-#ifdef __cplusplus
-}
-#endif
+void a2dInit();
+int32_t a2dReadPinValueTimes1000(nrf_saadc_input_t pin);
 
 #endif //A2D_BOOTLOADER_H__

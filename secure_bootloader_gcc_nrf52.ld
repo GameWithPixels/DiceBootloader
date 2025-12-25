@@ -5,12 +5,13 @@ GROUP(-lgcc -lc -lnosys)
 
 MEMORY
 {
-  FLASH (rx) : ORIGIN = 0x27000, LENGTH = 0x7000
+  FLASH (rx) : ORIGIN = 0x29000, LENGTH = 0x6000
+/*  FLASH (rx) : ORIGIN = 0x20000, LENGTH = 0xF000 */
   RAM (rwx) :  ORIGIN = 0x200022c8, LENGTH = 0x3d38
   BOARD_ID (rwx) : ORIGIN = 0x20001EB0, LENGTH = 0x4
   bootloader_settings_page (r) : ORIGIN = 0x0002F000, LENGTH = 0x1000
   uicr_mbr_params_page (r) : ORIGIN = 0x10001018, LENGTH = 0x4
-  mbr_params_page (r) : ORIGIN = 0x0002E000, LENGTH = 0x1000
+/*  mbr_params_page (r) : ORIGIN = 0x0002E000, LENGTH = 0x1000 */
   uicr_bootloader_start_address (r) : ORIGIN = 0x10001014, LENGTH = 0x4
 }
 
@@ -28,12 +29,14 @@ SECTIONS
     KEEP(*(SORT(.uicr_mbr_params_page*)))
     PROVIDE(__stop_uicr_mbr_params_page = .);
   } > uicr_mbr_params_page
+  /*
   .mbr_params_page(NOLOAD) :
   {
     PROVIDE(__start_mbr_params_page = .);
     KEEP(*(SORT(.mbr_params_page*)))
     PROVIDE(__stop_mbr_params_page = .);
   } > mbr_params_page
+  */
   .uicr_bootloader_start_address :
   {
     PROVIDE(__start_uicr_bootloader_start_address = .);

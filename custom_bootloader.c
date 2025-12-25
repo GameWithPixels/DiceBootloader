@@ -37,7 +37,7 @@
  * OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *
  */
-#include "custom_bootloader.h"
+#include "nrf_bootloader.h"
 
 #include "compiler_abstraction.h"
 #include "nrf.h"
@@ -59,10 +59,8 @@
 #include "nrf_bootloader_dfu_timers.h"
 #include "app_scheduler.h"
 #include "nrf_dfu_validation.h"
-#include "rainbow.h"
 #include "neopixel.h"
 
-static nrf_dfu_observer_t m_user_observer; //<! Observer callback set by the user.
 static volatile bool m_flash_write_done;
 
 #define SCHED_QUEUE_SIZE      32          /**< Maximum number of events in the scheduler queue. */
@@ -85,31 +83,8 @@ STATIC_ASSERT(NRF_LOG_BACKEND_FLASH_START_PAGE != 0,
     "If nrf_log flash backend is used it cannot use space after code because it would collide with settings page.");
 #endif
 
-/**@brief Weak implemenation of nrf_dfu_init
- *
- * @note   This function will be overridden if nrf_dfu.c is
- *         compiled and linked with the project
- */
- #if (__LINT__ != 1)
-__WEAK uint32_t nrf_dfu_init(nrf_dfu_observer_t observer)
-{
-    NRF_LOG_DEBUG("in weak nrf_dfu_init");
-    return NRF_SUCCESS;
-}
-#endif
-
-
-/**@brief Weak implementation of nrf_dfu_init
- *
- * @note    This function must be overridden in application if
- *          user-specific initialization is needed.
- */
-__WEAK uint32_t nrf_dfu_init_user(void)
-{
-    NRF_LOG_DEBUG("in weak nrf_dfu_init_user");
-    return NRF_SUCCESS;
-}
-
+#define TO_COLOR(red, green, blue) ((uint32_t)((red) << 16) | (uint32_t)((green) << 8) | (uint32_t)(blue))
+#define BL_LED_INTENSITY 8
 
 static void flash_write_callback(void * p_context)
 {
@@ -132,16 +107,16 @@ static void do_reset(void * p_context)
 ret_code_t custom_bootloader_start_app();
 ret_code_t custom_bootloader_enter_dfu();
 
-static void bootloader_reset(bool do_backup)
+static void bootloader_reset()
 {
     NRF_LOG_DEBUG("Resetting bootloader.");
 
-    if (do_backup)
-    {
-        m_flash_write_done = false;
-        nrf_dfu_settings_backup(do_reset);
-    }
-    else
+    // if (do_backup)
+    // {
+    //     m_flash_write_done = false;
+    //     nrf_dfu_settings_backup(do_reset);
+    // }
+    // else
     {
         do_reset(NULL);
     }
@@ -151,7 +126,7 @@ static void bootloader_reset(bool do_backup)
 static void inactivity_timeout(void)
 {
     NRF_LOG_INFO("Inactivity timeout.");
-    bootloader_reset(true);
+    bootloader_reset();
 }
 
 static void custom_app_start(void * p_event_data, uint16_t event_size)
@@ -166,21 +141,27 @@ static void start_appstart_timeout(void)
 }
 
 static void UpdateLEDs_AppTimeout() {
-    // Update LEDs and wait some more
-    int fadeTime = CUSTOM_BL_DFU_INACTIVITY_TIMEOUT_MS / 4;
-    int time = app_start_timeout_count * CUSTOM_BL_DFU_INACTIVITY_TIMEOUT_MS / CUSTOM_BL_DFU_INACTIVITY_TIMEOUT_STEPS;
-    int wheelpos = app_start_timeout_count * 256 / CUSTOM_BL_DFU_INACTIVITY_TIMEOUT_STEPS;
 
-    uint8_t intensity = BL_LED_INTENSITY;
-    if (time <= fadeTime) {
-        // Ramp up
-        intensity = (uint8_t)(time * BL_LED_INTENSITY / fadeTime);
-    } else if (time >= (CUSTOM_BL_DFU_INACTIVITY_TIMEOUT_MS - fadeTime)) {
-        // Ramp down
-        intensity = (uint8_t)((CUSTOM_BL_DFU_INACTIVITY_TIMEOUT_MS - time) * BL_LED_INTENSITY / fadeTime);
-    }
+    static const uint32_t rainbowColors[] = {
+        0x000100,
+        0x010200,
+        0x030200,
+        0x050100,
+        0x070000,
+        0x060001,
+        0x050002,
+        0x030004,
+        0x020005,
+        0x010006,
+        0x000007,
+        0x000105,
+        0x000203,
+        0x000201,
+    };
 
-    SetHighestLED(rainbowWheel(wheelpos, intensity));
+    int index = app_start_timeout_count % (sizeof(rainbowColors) / sizeof(rainbowColors[0]));
+    uint32_t color = rainbowColors[index];
+    SetHighestLED(color);
 }
 
 static void UpdateLEDs_BluetoothActivity() {
@@ -196,10 +177,6 @@ static void UpdateLEDs_BluetoothActivity() {
 static void UpdateLEDs_NoValidApp() {
     // Set highest LED yellow
     SetHighestLED(TO_COLOR(BL_LED_INTENSITY, BL_LED_INTENSITY, 0));
-}
-
-static void UpdateLEDs_ValidApp() {
-    UpdateLEDs_AppTimeout();
 }
 
 static void countdown_app_timeout(void)
@@ -228,12 +205,8 @@ static void dfu_observer(nrf_dfu_evt_type_t evt_type)
             nrf_bootloader_dfu_inactivity_timer_restart(NRF_BOOTLOADER_MS_TO_TICKS(NRF_BL_DFU_INACTIVITY_TIMEOUT_MS), inactivity_timeout);
             break;
         case NRF_DFU_EVT_DFU_COMPLETED:
-            UpdateLEDs_ValidApp();
-            bootloader_reset(true);
-            break;
         case NRF_DFU_EVT_DFU_ABORTED:
-            UpdateLEDs_NoValidApp();
-            bootloader_reset(true);
+            bootloader_reset();
             break;
         case NRF_DFU_EVT_TRANSPORT_DEACTIVATED:
             // Reset the internal state of the DFU settings to the last stored state.
@@ -242,11 +215,6 @@ static void dfu_observer(nrf_dfu_evt_type_t evt_type)
             break;
         default:
             break;
-    }
-
-    if (m_user_observer)
-    {
-        m_user_observer(evt_type);
     }
 }
 
@@ -310,25 +278,26 @@ static void dfu_enter_button_init(void)
 
 static bool crc_on_valid_app_required(void)
 {
-    bool ret = true;
-    if (NRF_BL_APP_CRC_CHECK_SKIPPED_ON_SYSTEMOFF_RESET &&
-        (nrf_power_resetreas_get() & NRF_POWER_RESETREAS_OFF_MASK))
-    {
-        nrf_power_resetreas_clear(NRF_POWER_RESETREAS_OFF_MASK);
-        ret = false;
-    }
-    else if (NRF_BL_APP_CRC_CHECK_SKIPPED_ON_GPREGRET2 &&
-            ((nrf_power_gpregret2_get() & BOOTLOADER_DFU_GPREGRET2_MASK) == BOOTLOADER_DFU_GPREGRET2)
-            && (nrf_power_gpregret2_get() & BOOTLOADER_DFU_SKIP_CRC_BIT_MASK))
-    {
-        nrf_power_gpregret2_set(nrf_power_gpregret2_get() & ~BOOTLOADER_DFU_SKIP_CRC);
-        ret = false;
-    }
-    else
-    {
-    }
+    return true;
+    // bool ret = true;
+    // if (NRF_BL_APP_CRC_CHECK_SKIPPED_ON_SYSTEMOFF_RESET &&
+    //     (nrf_power_resetreas_get() & NRF_POWER_RESETREAS_OFF_MASK))
+    // {
+    //     nrf_power_resetreas_clear(NRF_POWER_RESETREAS_OFF_MASK);
+    //     ret = false;
+    // }
+    // else if (NRF_BL_APP_CRC_CHECK_SKIPPED_ON_GPREGRET2 &&
+    //         ((nrf_power_gpregret2_get() & BOOTLOADER_DFU_GPREGRET2_MASK) == BOOTLOADER_DFU_GPREGRET2)
+    //         && (nrf_power_gpregret2_get() & BOOTLOADER_DFU_SKIP_CRC_BIT_MASK))
+    // {
+    //     nrf_power_gpregret2_set(nrf_power_gpregret2_get() & ~BOOTLOADER_DFU_SKIP_CRC);
+    //     ret = false;
+    // }
+    // else
+    // {
+    // }
 
-    return ret;
+    // return ret;
 }
 
 
@@ -458,13 +427,6 @@ ret_code_t custom_bootloader_enter_dfu() {
     scheduler_init();
     dfu_enter_flags_clear();
 
-    // Call user-defined init function if implemented
-    ret_code_t ret_val = nrf_dfu_init_user();
-    if (ret_val != NRF_SUCCESS)
-    {
-        return NRF_ERROR_INTERNAL;
-    }
-
     const uint32_t uniqueId = getDeviceID();
     for (int i = 0; i < 8; ++i) {
         const char value = (uniqueId >> ((7 - i) << 2)) & 0xf;
@@ -472,7 +434,7 @@ ret_code_t custom_bootloader_enter_dfu() {
     }
     g_advertised_name[11] = '\0';
 
-    ret_val = nrf_dfu_init(dfu_observer);
+    ret_code_t ret_val = nrf_dfu_init(dfu_observer);
     if (ret_val != NRF_SUCCESS)
     {
         return NRF_ERROR_INTERNAL;
@@ -486,13 +448,6 @@ ret_code_t custom_bootloader_enter_dfu() {
 
 
 ret_code_t custom_bootloader_app_valid() {
-
-    // Erase additional data like peer data or advertisement name
-    ret_code_t ret_val = nrf_dfu_settings_additional_erase();
-    if (ret_val != NRF_SUCCESS)
-    {
-        return NRF_ERROR_INTERNAL;
-    }
 
     m_flash_write_done = false;
     nrf_dfu_settings_backup(flash_write_callback);
@@ -538,7 +493,6 @@ ret_code_t nrf_bootloader_init(nrf_dfu_observer_t observer)
     ret_code_t                            ret_val;
     nrf_bootloader_fw_activation_result_t activation_result;
 
-    m_user_observer = observer;
 
     if (NRF_BL_DEBUG_PORT_DISABLE)
     {
@@ -574,16 +528,14 @@ ret_code_t nrf_bootloader_init(nrf_dfu_observer_t observer)
                 NRF_LOG_INFO("Entering DFU because no valid app");
                 UpdateLEDs_NoValidApp();
                 nrf_bootloader_dfu_inactivity_timer_restart(NRF_BOOTLOADER_MS_TO_TICKS(NRF_BL_DFU_INACTIVITY_TIMEOUT_MS), inactivity_timeout);
-                custom_bootloader_enter_dfu();
             } else {
                 // App is valid, enter dfu only for a short amount of time, then start the app!
                 NRF_LOG_INFO("Entering DFU for a few seconds, because app is valid");
-                UpdateLEDs_ValidApp();
                 start_appstart_timeout();
                 nrf_bootloader_dfu_inactivity_timer_restart(NRF_BOOTLOADER_MS_TO_TICKS(CUSTOM_BL_DFU_INACTIVITY_TIMEOUT_MS / CUSTOM_BL_DFU_INACTIVITY_TIMEOUT_STEPS), countdown_app_timeout);
-                custom_bootloader_app_valid();
-                custom_bootloader_enter_dfu();
+                //custom_bootloader_app_valid();
             }
+            custom_bootloader_enter_dfu();
             break;
 
         case ACTIVATION_SUCCESS_EXPECT_ADDITIONAL_UPDATE:
@@ -591,7 +543,7 @@ ret_code_t nrf_bootloader_init(nrf_dfu_observer_t observer)
             break;
 
         case ACTIVATION_SUCCESS:
-            bootloader_reset(true);
+            bootloader_reset();
             NRF_LOG_ERROR("Unreachable");
             return NRF_ERROR_INTERNAL; // Should not reach this.
 
