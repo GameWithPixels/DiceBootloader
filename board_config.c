@@ -12,6 +12,7 @@
 #define BOARD_DETECT_DRIVE_PIN 25
 #define BOARD_DETECT_SENSE_PIN NRF_SAADC_INPUT_AIN4
 #define BOARD_DETECT_RESISTOR 100000 // 100k
+#define BOARD_ID_VOLTAGE_THRESHOLD 100 //mV
 
 // Array of boards that don't have an identifying resistor and for which we need to use the LED data and return pins
 static const struct Board_t unidentifiableBoards[] = {
@@ -55,14 +56,15 @@ static const struct Board_t unidentifiableBoards[] = {
         .debugLedIndex = 20,
         .boardId = Board_D6V10,
     },
-    {
-        .boardResistorValueIn100Ohms = 0, // The resistors are soldered the wrong way, so we measure almost 0 volts.
-        .ledDataPin = 1,
-        .ledPowerPin = 0,
-        .ledReturnPin = 10,
-        .debugLedIndex = 20,
-        .boardId = Board_PD6V3,
-    },
+    // CONFLICT WITH PD6V5
+    // {
+    //     .boardResistorValueIn100Ohms = 0, // The resistors are soldered the wrong way, so we measure almost 0 volts.
+    //     .ledDataPin = 1,
+    //     .ledPowerPin = 0,
+    //     .ledReturnPin = 10,
+    //     .debugLedIndex = 20,
+    //     .boardId = Board_PD6V3,
+    // },
 };
 
 // Array of possible circuit boards configs
@@ -97,7 +99,7 @@ static const struct Board_t identifiableBoards[] = {
         .boardResistorValueIn100Ohms = 620, // 62.0k Resistor, at VCC = 3.1V, this means 3.1V * 62k / 162k = 1.18V
         .ledDataPin = 1,
         .ledPowerPin = 0,
-        .ledReturnPin = 10  ,
+        .ledReturnPin = 10,
         .debugLedIndex = 3,
         .boardId = Board_D6V6,
     },
@@ -185,6 +187,11 @@ void setNTC_ID_VDD() {
     nrf_gpio_pin_set(BOARD_DETECT_DRIVE_PIN);
 }
 
+void gndNTC_ID_VDD() {
+    nrf_gpio_cfg_output(BOARD_DETECT_DRIVE_PIN);
+    nrf_gpio_pin_clear(BOARD_DETECT_DRIVE_PIN);
+}
+
 void clearNTC_ID_VDD() {
     nrf_gpio_cfg_default(BOARD_DETECT_DRIVE_PIN);
 }
@@ -204,109 +211,128 @@ void boardInit() {
     ret_code_t err_code = nrf_drv_gpiote_init();
     APP_ERROR_CHECK(err_code);
 
-    // Iterate through the unidentifiable boards and try to wiggle the LED data line, see if it's the correct ont
-    // None of the other boards have the same LED lines so if we find a match here we're done.
-    const int unidentifableBoardCount = sizeof(unidentifiableBoards) / sizeof(unidentifiableBoards[0]);
-    bool foundBoard = false;
-    for (int i = 0; !foundBoard && (i < unidentifableBoardCount); ++i) {
+    // We did not find the board by checking the LED data/return pins, try the A2D method
+    a2dInit();
 
-        // Set the pin numbers according to the board we're testing for
-        currentBoard = &(unidentifiableBoards[i]);
+    // Make sure we can sample ID pin
+    setNTC_ID_VDD();
+    nrf_delay_ms(5);
 
-        if (nrf_gpio_pin_present_check(currentBoard->ledDataPin) &&
-            nrf_gpio_pin_present_check(currentBoard->ledPowerPin) &&
-            nrf_gpio_pin_present_check(currentBoard->ledReturnPin)) {
+    int32_t vboardTimes1000 = a2dReadPinValueTimes1000(BOARD_DETECT_SENSE_PIN);
+    NRF_LOG_DEBUG("Vboard=%d", vboardTimes1000);
 
-            //NRF_LOG_INFO("Testing %d: %s!", i, unidentifiableBoards[i].name);
+    // Now that we're done reading, we can turn off the drive pin
+    clearNTC_ID_VDD();
 
-            NeopixelInit();
+    // Do some computation to figure out which variant we're working with!
+    // D20v3 board uses 20k over 100k voltage divider
+    // i.e. the voltage read should be 3.1V * 20k / 120k = 0.55V
+    // The D6v2 board uses 47k over 100k, i.e. 1.05V
+    // The D20v2 board should read 0 (unconnected)
+    // So we can allow a decent
+    const int32_t vddTimes1000 = a2dReadPinValueTimes1000(NRF_SAADC_INPUT_VDD);
 
-            // Run the test
-            foundBoard = TestLEDReturn();
+    // Compute board voltages
+    const int identifiableBoardCount = sizeof(identifiableBoards) / sizeof(identifiableBoards[0]);
 
-            // Deinit
-            NeopixelDeinit();
-
+    int absSmallestVoltageDeltaTimes1000 = BOARD_ID_VOLTAGE_THRESHOLD; // max 100 mV delta
+    int boardIndex = -1;
+    for (int i = 0; i < identifiableBoardCount; ++i) {
+        int boardVoltageTimes1000 = (vddTimes1000 * identifiableBoards[i].boardResistorValueIn100Ohms * 100) / (BOARD_DETECT_RESISTOR + identifiableBoards[i].boardResistorValueIn100Ohms * 100);
+        int absDelta = boardVoltageTimes1000 - vboardTimes1000;
+        if (absDelta < 0) {
+            absDelta = -absDelta;
+        }
+        if (absDelta < absSmallestVoltageDeltaTimes1000) {
+            absSmallestVoltageDeltaTimes1000 = absDelta;
+            boardIndex = i;
         }
     }
 
+    bool foundBoard = boardIndex != -1;
+    if (foundBoard) {
+        //NRF_LOG_INFO("Board is %s, boardId V: %d.%03d", currentBoard->name, vboardTimes1000 / 1000, vboardTimes1000 % 1000);
+        currentBoard = &(identifiableBoards[boardIndex]);
+    }
+
+    a2dUninit();
+
     if (!foundBoard) {
-        // We did not find the board by checking the LED data/return pins, try the A2D method
+        NRF_LOG_WARNING("Bad VBoard, checking LED pins to figure out board model...");
+        // Iterate through the unidentifiable boards and try to wiggle the LED data line, see if it's the correct ont
+        // None of the other boards have the same LED lines so if we find a match here we're done.
+        const int unidentifableBoardCount = sizeof(unidentifiableBoards) / sizeof(unidentifiableBoards[0]);
+        for (int i = 0; !foundBoard && (i < unidentifableBoardCount); ++i) {
 
-        // Sample adc board pin
-        setNTC_ID_VDD();
+            // Set the pin numbers according to the board we're testing for
+            currentBoard = &(unidentifiableBoards[i]);
 
-        nrf_delay_ms(5);
+            if (nrf_gpio_pin_present_check(currentBoard->ledDataPin) &&
+                nrf_gpio_pin_present_check(currentBoard->ledPowerPin) &&
+                nrf_gpio_pin_present_check(currentBoard->ledReturnPin)) {
 
-        int32_t vboardTimes1000 = a2dReadPinValueTimes1000(BOARD_DETECT_SENSE_PIN);
-
-        // Now that we're done reading, we can turn off the drive pin
-        clearNTC_ID_VDD();
-
-        // Do some computation to figure out which variant we're working with!
-        // D20v3 board uses 20k over 100k voltage divider
-        // i.e. the voltage read should be 3.1V * 20k / 120k = 0.55V
-        // The D6v2 board uses 47k over 100k, i.e. 1.05V
-        // The D20v2 board should read 0 (unconnected)
-        // So we can allow a decent
-        const int32_t vddTimes1000 = a2dReadPinValueTimes1000(NRF_SAADC_INPUT_VDD);
-
-        // Compute board voltages
-        const int identifiableBoardCount = sizeof(identifiableBoards) / sizeof(identifiableBoards[0]);
-
-        int absSmallestVoltageDeltaTimes1000 = 5000;
-        int boardIndex = -1;
-        for (int i = 0; i < identifiableBoardCount; ++i) {
-            int boardVoltageTimes1000 = (vddTimes1000 * identifiableBoards[i].boardResistorValueIn100Ohms * 100) / (BOARD_DETECT_RESISTOR + identifiableBoards[i].boardResistorValueIn100Ohms * 100);
-            int absDelta = boardVoltageTimes1000 - vboardTimes1000;
-            if (absDelta < 0) {
-                absDelta = -absDelta;
-            }
-            if (absDelta < absSmallestVoltageDeltaTimes1000) {
-                absSmallestVoltageDeltaTimes1000 = absDelta;
-                boardIndex = i;
+                // Run the test
+                foundBoard = TestLEDReturn();
             }
         }
-
-        currentBoard = &(identifiableBoards[boardIndex]);
-        //NRF_LOG_INFO("Board is %s, boardId V: %d.%03d", currentBoard->name, vboardTimes1000 / 1000, vboardTimes1000 % 1000);
     }
 
     nrf_drv_gpiote_uninit();
 
-    // Display reset reason bits
-    uint32_t resetReas = nrf_power_resetreas_get();
-    nrf_power_resetreas_clear(0xFFFFFFFF);
+    if (foundBoard) {
+        NRF_LOG_DEBUG("Board Identified!");
 
-    if (resetReas != 0) {
-        NeopixelInit();
+        // Display reset reason bits
+        uint32_t resetReas = nrf_power_resetreas_get();
+        nrf_power_resetreas_clear(0xFFFFFFFF);
 
-        // RESET PIN -> GREEN
-        if ((resetReas & (1 << 0)) != 0) {
-            BlinkHighestLED(0x000400);
-        }
-        // WATCHDOG -> RED
-        if ((resetReas & (1 << 1)) != 0) {
-            BlinkHighestLED(0x040000);
-        }
-        // SYSTEM REQUEST -> BLUE
-        if ((resetReas & (1 << 2)) != 0) {
-            BlinkHighestLED(0x000004);
-        }
-        // LOCKUP -> YELLOW
-        if ((resetReas & (1 << 3)) != 0) {
-            BlinkHighestLED(0x040400);
-        }
-        // Wake from SYSTEM OFF / GPIO -> CYAN
-        if ((resetReas & (1 << 16)) != 0) {
-            BlinkHighestLED(0x000404);
-        }
-        // Debug -> PURPLE
-        if ((resetReas & (1 << 18)) != 0) {
-            BlinkHighestLED(0x040004);
-        }
+        static const uint32_t blinkColors[] = {
+            0x000400, // RESET PIN -> GREEN
+            0x040000, // WATCHDOG -> RED
+            0x000004, // SYSTEM REQUEST -> BLUE
+            0x040400  // LOCKUP -> YELLOW
+        };
 
-        NeopixelDeinit();
+        if (resetReas != 0) {
+            NeopixelInit();
+
+            for (int i = 0; i < 4; ++i) {
+                if ((resetReas & (1 << i)) != 0) {
+                    BlinkHighestLED(blinkColors[i]);
+                }
+            }
+
+            #if DEBUG
+            // RESET PIN -> GREEN
+            if ((resetReas & (1 << 0)) != 0) {
+                NRF_LOG_WARNING("Reset Reason - %s", "PIN RESET");
+            }
+            // WATCHDOG -> RED
+            if ((resetReas & (1 << 1)) != 0) {
+                NRF_LOG_ERROR("Reset Reason - %s", "WATCHDOG");
+            }
+            // SYSTEM REQUEST -> BLUE
+            if ((resetReas & (1 << 2)) != 0) {
+                NRF_LOG_INFO("Reset Reason - %s", "SYSTEM REQUEST");
+            }
+            // LOCKUP -> YELLOW
+            if ((resetReas & (1 << 3)) != 0) {
+                NRF_LOG_ERROR("Reset Reason - %s", "LOCKUP");
+            }
+            // Wake from SYSTEM OFF / GPIO -> CYAN
+            if ((resetReas & (1 << 16)) != 0) {
+                NRF_LOG_INFO("Reset Reason - %s", "WAKE FROM SYSOFF");
+            }
+            // Debug -> PURPLE
+            if ((resetReas & (1 << 18)) != 0) {
+                NRF_LOG_INFO("Reset Reason - %s", "DEBUG");
+            }
+            #endif
+
+            NeopixelDeinit();
+        }
+    } else {
+        NRF_LOG_ERROR("Board not found!");
     }
 
 }

@@ -9,6 +9,7 @@
 #include "nrf_saadc.h"
 
 void a2dInit();
+void a2dUninit();
 int32_t a2dReadPinValueTimes1000(nrf_saadc_input_t pin);
 
 #endif //A2D_BOOTLOADER_H__

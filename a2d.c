@@ -9,6 +9,10 @@ void a2dInit() {
     nrf_drv_saadc_init(NULL, nullSAADCHandler);
 }
 
+void a2dUninit() {
+    nrf_drv_saadc_uninit();
+}
+
 int32_t a2dReadPinValueTimes1000(nrf_saadc_input_t pin) {
     // Digital value read is [V(p) - V(n)] * Gain / Reference * 2^(Resolution - m)
     // In our case:

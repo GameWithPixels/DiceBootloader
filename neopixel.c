@@ -39,6 +39,8 @@ void powerOn() {
 void powerOff() {
     // Get board
     const struct Board_t* board = getBoard();
+    // Make sure pins are setup correctly, just in case
+    nrf_gpio_cfg_output(board->ledPowerPin);
     // Turn power off
     nrf_gpio_pin_clear(board->ledPowerPin);
     // // Reset pin state
@@ -84,23 +86,13 @@ void internalNeopixelSetHighestLED(uint32_t color) {
 }
 
 
-static bool ledReturnDetected;
+static int ledReturnDetectedCount;
 void ledReturnDetector(nrfx_gpiote_pin_t pin, nrf_gpiote_polarity_t action) {
-    ledReturnDetected = true;
+    ledReturnDetectedCount++;
 }
-
 
 bool TestLEDReturn() {
     
-    // test LED return
-    powerOn();
-
-    // Now that supposedly LEDs are powered on, set interrupt pin
-    // to detect the output of the last LED toggling
-
-    // Initialize on separate line to make sure it happens every call, as this is a static variable
-    ledReturnDetected = false;
-
     nrf_drv_gpiote_in_config_t in_config;
     in_config.is_watcher = false;
     in_config.hi_accuracy = true;
@@ -109,26 +101,40 @@ bool TestLEDReturn() {
     in_config.skip_gpio_setup = false;
 
     uint32_t ledReturnPin = getBoard()->ledReturnPin;
+    uint32_t ledDataPin = getBoard()->ledDataPin;
 
     ret_code_t err_code = nrf_drv_gpiote_in_init(ledReturnPin, &in_config, ledReturnDetector);
     APP_ERROR_CHECK(err_code);
 
+    // Turn interrupt on
     nrf_drv_gpiote_in_event_enable(ledReturnPin, true);
 
+    // Reset data pin
+    nrf_gpio_cfg_default(ledDataPin);
+    
+    NeopixelInit();
+    
+    // test LED return
+    powerOn();
+
     // Have LEDs test the return
+    ledReturnDetectedCount = 0;
     internalNeopixelSetHighestLED(0);
 
     // Wait (synchronously because we not fancy like that)
     nrf_delay_ms(5);
 
+    // Turn off LED power
+    powerOff();
+
+    // Deinit
+    NeopixelDeinit();
+
     // Turn off the interrupt handler
     nrfx_gpiote_in_uninit(ledReturnPin);    
     nrf_gpio_cfg_default(ledReturnPin);
 
-    // Turn off LED power
-    powerOff();
-
-    return ledReturnDetected;
+    return ledReturnDetectedCount != 0;
 }
 
 
